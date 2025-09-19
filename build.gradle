@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group = 'io.github.szachesov'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    springVersion = '3.5.4'
+    lombokVersion = '1.18.38'
+    testcontainersVersion = '1.21.3'
+    hibernateVersion = '6.6.9.Final'
+}
+
+dependencies {
+
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springVersion}"
+
+    implementation "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springVersion}"
+    testImplementation "org.springframework.boot:spring-boot-testcontainers:${springVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+    testRuntimeOnly 'org.postgresql:postgresql:42.7.7'
+    testCompileOnly "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
+    testAnnotationProcessor "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
+}
+
+test {
+    useJUnitPlatform()
+    //https://stackoverflow.com/a/78188896/17965846
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
+}
