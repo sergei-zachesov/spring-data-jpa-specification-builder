@@ -1,7 +1,18 @@
 package io.github.szachesov.specification.builder;
 
-import jakarta.persistence.*;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -87,9 +98,8 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
     Field[] fields = javaType.getDeclaredFields();
     Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
-    if (field == null) {
-      return false;
-    }
+    if (field == null) return false;
+
     return field.isAnnotationPresent(ElementCollection.class);
   }
 

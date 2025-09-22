@@ -1,14 +1,12 @@
 package io.github.szachesov.specification.builder;
 
-import jakarta.persistence.criteria.*;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * @author Zachesov Sergei
- * @since 2023-11-08
- */
 public class InSpecification<S, T> extends AbstractSpecification<S, T> {
 
   private final Collection<T> values;
@@ -19,8 +17,7 @@ public class InSpecification<S, T> extends AbstractSpecification<S, T> {
     return getPath(root).in(values);
   }
 
-  public static class Builder<S, T>
-      extends AbstractSpecification.Builder<Builder<S, T>>
+  public static class Builder<S, T> extends AbstractSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<InSpecification<S, T>> {
 
     private final Collection<T> values;

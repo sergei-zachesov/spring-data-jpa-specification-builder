@@ -1,15 +1,15 @@
 package io.github.szachesov.specification.builder;
 
-import jakarta.persistence.criteria.*;
-import lombok.Getter;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.Locale;
+import lombok.Getter;
 
-/**
- * @author Zachesov Sergei
- * @since 2023-11-08
- */
 public class LikeSpecification<S> extends AbstractSpecification<S, String> {
 
   private String value;

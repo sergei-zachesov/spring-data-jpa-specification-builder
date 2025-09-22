@@ -2,10 +2,6 @@ package io.github.szachesov.specification.builder;
 
 import org.springframework.data.jpa.domain.Specification;
 
-/**
- * @author Zachesov Sergei
- * @since 2023-04-02
- */
 public enum LogicalConnection {
   AND {
     @Override

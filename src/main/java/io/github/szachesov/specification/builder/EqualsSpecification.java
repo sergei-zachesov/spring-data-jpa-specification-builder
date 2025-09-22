@@ -1,13 +1,12 @@
 package io.github.szachesov.specification.builder;
 
-import jakarta.persistence.criteria.*;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 
-/**
- * @author Zachesov Sergei
- * @since 2023-11-03
- */
 public class EqualsSpecification<S> extends AbstractSpecification<S, Object> {
 
   private final Object value;

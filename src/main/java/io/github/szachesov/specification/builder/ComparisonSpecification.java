@@ -1,17 +1,16 @@
 package io.github.szachesov.specification.builder;
 
-import jakarta.persistence.criteria.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-/**
- * @author Zachesov Sergei
- * @since 2023-11-08
- */
 public class ComparisonSpecification<S, T extends Comparable<? super T>>
     extends AbstractSpecification<S, T> {
 
@@ -175,9 +174,7 @@ public class ComparisonSpecification<S, T extends Comparable<? super T>>
   @AllArgsConstructor
   private enum Interval {
     NOT_INTERVAL(
-        "a<x||a<=x||x<b||x<=b",
-        CountOperation.ONE,
-        (iMin, iMax) -> iMin == null || iMax == null),
+        "a<x||a<=x||x<b||x<=b", CountOperation.ONE, (iMin, iMax) -> iMin == null || iMax == null),
     OPEN(
         "a<x<b",
         CountOperation.TWO,
