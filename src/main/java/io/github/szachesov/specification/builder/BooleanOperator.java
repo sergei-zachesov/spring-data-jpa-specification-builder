@@ -2,7 +2,7 @@ package io.github.szachesov.specification.builder;
 
 import org.springframework.data.jpa.domain.Specification;
 
-public enum LogicalConnection {
+public enum BooleanOperator {
   AND {
     @Override
     <T> Specification<T> connect(Specification<T> spec, Specification<T> connect) {

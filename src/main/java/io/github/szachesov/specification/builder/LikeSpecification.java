@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.Locale;
 import lombok.Getter;
 
-public class LikeSpecification<S> extends AbstractSpecification<S, String> {
+/**
+ * Predicate of like.
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ */
+public class LikeSpecification<T> extends CompositeSpecification<T, String> {
 
   private String value;
   private final boolean isIgnoreCase;
@@ -18,7 +23,7 @@ public class LikeSpecification<S> extends AbstractSpecification<S, String> {
   @Getter private final int minChar;
 
   @Override
-  Predicate toCriteriaPredicate(Root<S> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+  Predicate toCriteriaPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
     Path<String> path = getPath(root);
 
     Expression<String> expression;
@@ -32,7 +37,7 @@ public class LikeSpecification<S> extends AbstractSpecification<S, String> {
     return builder.like(expression, wildcard.getWithWildcard().apply(value));
   }
 
-  public static class Builder<S> extends AbstractSpecification.Builder<Builder<S>>
+  public static class Builder<S> extends CompositeSpecification.Builder<Builder<S>>
       implements ObjectBuilder<LikeSpecification<S>> {
 
     private final String value;
@@ -71,7 +76,7 @@ public class LikeSpecification<S> extends AbstractSpecification<S, String> {
     }
   }
 
-  private LikeSpecification(Builder<S> builder) {
+  private LikeSpecification(Builder<T> builder) {
     super(builder);
     this.value = builder.value;
     this.isIgnoreCase = builder.isIgnoreCase;

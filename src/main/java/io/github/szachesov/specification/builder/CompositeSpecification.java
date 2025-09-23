@@ -24,37 +24,41 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
 /**
- * @param <S> the source type
- * @param <T> the target type
+ * An abstract aggregating class that describes the basic properties and behaviors of predicates.
+ *
+ * <p><a href="https://martinfowler.com/apsupp/spec.pdf">Specifications pattern</a>
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ * @param <P> target predicate type, maybe {@link Join}
  */
-public abstract class AbstractSpecification<S, T> implements Specification<S> {
+public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
   @Setter(AccessLevel.PACKAGE)
   private boolean distinct = true;
 
   private final JoinType joinType;
   private final boolean isFetch;
-  LogicalConnection connection;
+  BooleanOperator connection;
   protected final List<String> columns;
   protected final boolean isNot;
 
   @Override
   public final Predicate toPredicate(
-      Root<S> root, @Nullable CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+          Root<T> root, @Nullable CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
     query.distinct(distinct);
     return toCriteriaPredicate(root, query, criteriaBuilder);
   }
 
   abstract Predicate toCriteriaPredicate(
-      Root<S> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder);
+          Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder);
 
-  protected Path<T> getPath(Root<S> root) {
+  protected Path<P> getPath(Root<T> root) {
     return getPath(root, joinType);
   }
 
   @SuppressWarnings("unchecked")
-  protected Path<T> getPath(Root<S> root, JoinType joinType) {
-    Path<T> path = null;
+  protected Path<P> getPath(Root<T> root, JoinType joinType) {
+    Path<P> path = null;
     From<?, ?> from = root;
     Class<?> javaType = root.getJavaType();
 
@@ -67,7 +71,7 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
 
       } else if (isElementCollection(column, javaType)) {
         Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
-        path = joinOpt.isPresent() ? (Path<T>) joinOpt.get() : from.join(column, joinType);
+        path = joinOpt.isPresent() ? (Path<P>) joinOpt.get() : from.join(column, joinType);
         break;
       } else {
         path = from.get(column);
@@ -75,7 +79,7 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
       }
     }
     if (path == null) {
-      path = (Path<T>) from;
+      path = (Path<P>) from;
     }
 
     return path;
@@ -138,7 +142,7 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
   abstract static class Builder<BuilderT extends Builder<BuilderT>> {
 
     protected final List<String> columns;
-    private LogicalConnection connection = LogicalConnection.AND;
+    private BooleanOperator connection = BooleanOperator.AND;
     private boolean isNot = false;
     private JoinType joinType = JoinType.INNER;
     private boolean isFetch = false;
@@ -147,7 +151,7 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
       this.columns = columns;
     }
 
-    public BuilderT connection(LogicalConnection connection) {
+    public BuilderT connection(BooleanOperator connection) {
       this.connection = connection;
       return self();
     }
@@ -170,7 +174,7 @@ public abstract class AbstractSpecification<S, T> implements Specification<S> {
     protected abstract BuilderT self();
   }
 
-  protected <BuilderT extends Builder<BuilderT>> AbstractSpecification(Builder<BuilderT> builder) {
+  protected <BuilderT extends Builder<BuilderT>> CompositeSpecification(Builder<BuilderT> builder) {
     this.columns = builder.columns;
     this.connection = builder.connection;
     this.isNot = builder.isNot;

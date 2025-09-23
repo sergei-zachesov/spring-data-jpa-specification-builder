@@ -2,24 +2,29 @@ package io.github.szachesov.specification.builder;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.List;
-
-public class EqualsSpecification<S> extends AbstractSpecification<S, Object> {
+/**
+ * Predicate of equal to(=).
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ */
+public class EqualsSpecification<T> extends CompositeSpecification<T, Object> {
 
   private final Object value;
 
   @Override
   Predicate toCriteriaPredicate(
-      Root<S> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+          Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
     Path<Object> path = getPath(root);
 
     return isNot ? criteriaBuilder.notEqual(path, value) : criteriaBuilder.equal(path, value);
   }
 
-  public static class Builder<S> extends AbstractSpecification.Builder<Builder<S>>
+  public static class Builder<S> extends CompositeSpecification.Builder<Builder<S>>
       implements ObjectBuilder<EqualsSpecification<S>> {
     private final Object value;
 
@@ -39,7 +44,7 @@ public class EqualsSpecification<S> extends AbstractSpecification<S, Object> {
     }
   }
 
-  private EqualsSpecification(Builder<S> builder) {
+  private EqualsSpecification(Builder<T> builder) {
     super(builder);
     this.value = builder.value;
   }

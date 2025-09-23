@@ -1,11 +1,10 @@
 package io.github.szachesov.specification.builder;
 
+import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.function.Function;
-
-/** <a href="https://en.wikipedia.org/wiki/Where_(SQL)#LIKE">LIKE with wildcard</a> */
+/** LIKE with wildcard. */
 @Getter
 @AllArgsConstructor
 public enum Wildcard {

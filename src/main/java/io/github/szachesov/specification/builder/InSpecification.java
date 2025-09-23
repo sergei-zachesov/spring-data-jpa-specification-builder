@@ -2,22 +2,29 @@ package io.github.szachesov.specification.builder;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.List;
 
-public class InSpecification<S, T> extends AbstractSpecification<S, T> {
+/**
+ * Predicate of equal to one of multiple possible values(IN).
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ * @param <P> target predicate type, maybe {@link Join}
+ */
+public class InSpecification<T, P> extends CompositeSpecification<T, P> {
 
-  private final Collection<T> values;
+  private final Collection<P> values;
 
   @Override
   Predicate toCriteriaPredicate(
-      Root<S> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+          Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
     return getPath(root).in(values);
   }
 
-  public static class Builder<S, T> extends AbstractSpecification.Builder<Builder<S, T>>
+  public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<InSpecification<S, T>> {
 
     private final Collection<T> values;
@@ -38,7 +45,7 @@ public class InSpecification<S, T> extends AbstractSpecification<S, T> {
     }
   }
 
-  private InSpecification(Builder<S, T> builder) {
+  private InSpecification(Builder<T, P> builder) {
     super(builder);
     this.values = builder.values;
   }

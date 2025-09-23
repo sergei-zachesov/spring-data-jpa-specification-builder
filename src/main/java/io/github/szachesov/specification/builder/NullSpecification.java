@@ -2,23 +2,30 @@ package io.github.szachesov.specification.builder;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.List;
 
-public class NullSpecification<S, T> extends AbstractSpecification<S, T> {
+/**
+ * Predicate of compare to null (IS NULL).
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ * @param <P> target predicate type, maybe {@link Join}
+ */
+public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
 
   @Override
   Predicate toCriteriaPredicate(
-      Root<S> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+      Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
     Path<?> path = getPath(root, JoinType.LEFT);
     return isNot ? path.isNotNull() : path.isNull();
   }
 
-  public static class Builder<S, T> extends AbstractSpecification.Builder<Builder<S, T>>
+  public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<NullSpecification<S, T>> {
 
     Builder(List<String> columns) {
@@ -36,7 +43,7 @@ public class NullSpecification<S, T> extends AbstractSpecification<S, T> {
     }
   }
 
-  private NullSpecification(Builder<S, T> builder) {
+  private NullSpecification(Builder<T, P> builder) {
     super(builder);
   }
 }
