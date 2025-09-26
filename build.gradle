@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id "dev.yumi.gradle.licenser" version "2.1.1"
 }
 
 group = 'io.github.szachesov'
@@ -56,3 +57,10 @@ checkstyleMain {
 checkstyleTest {
     source = 'src/test/java'
 }
+
+license {
+    rule(file("LICENSE-HEADER"))
+    include("**/*.java")
+}
+
+compileJava.dependsOn tasks.applyLicenses

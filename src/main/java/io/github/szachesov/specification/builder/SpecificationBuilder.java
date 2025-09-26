@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025 Sergei Zachesov and others.
+ * https://github.com/sergei-zachesov/spring-data-jpa-specification-builder
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.szachesov.specification.builder;
 
 import java.util.ArrayList;
@@ -31,6 +48,10 @@ public class SpecificationBuilder<S> {
   }
 
   // Equal to(=)
+  public SpecificationBuilder<S> notEqual(String column, Object value) {
+    return equal(column, value, EqualsSpecification.Builder::not);
+  }
+
   public SpecificationBuilder<S> equal(String column, Object value) {
     return equal(column, value, EqualsSpecification.Builder::self);
   }
@@ -44,10 +65,6 @@ public class SpecificationBuilder<S> {
 
   public SpecificationBuilder<S> equal(List<String> columns, Object value) {
     return equal(columns, value, EqualsSpecification.Builder::self);
-  }
-
-  public SpecificationBuilder<S> notEqual(String column, Object value) {
-    return equal(column, value, EqualsSpecification.Builder::not);
   }
 
   public SpecificationBuilder<S> equal(
@@ -160,12 +177,12 @@ public class SpecificationBuilder<S> {
 
   // Compare to null
 
-  public SpecificationBuilder<S> isNull(String column) {
-    return isNull(column, true);
-  }
-
   public SpecificationBuilder<S> isNotNull(String column) {
     return isNull(column, true, CompositeSpecification.Builder::not);
+  }
+
+  public SpecificationBuilder<S> isNull(String column) {
+    return isNull(column, true);
   }
 
   public SpecificationBuilder<S> isNull(String column, Boolean isActive) {
