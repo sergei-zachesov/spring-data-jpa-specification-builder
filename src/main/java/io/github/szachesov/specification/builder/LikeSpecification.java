@@ -40,7 +40,8 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
   @Getter private final int minChar;
 
   @Override
-  Predicate toCriteriaPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+  Predicate toCriteriaPredicate(
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
     Path<String> path = getPath(root);
 
     Expression<String> expression;
@@ -54,6 +55,7 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
     return builder.like(expression, wildcard.getWithWildcard().apply(value));
   }
 
+  /** Builder for {@link LikeSpecification}. */
   public static class Builder<S> extends CompositeSpecification.Builder<Builder<S>>
       implements ObjectBuilder<LikeSpecification<S>> {
 
@@ -62,7 +64,7 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
     private Wildcard wildcard = Wildcard.ABSENCE;
     private int minChar = 3;
 
-    Builder(List<String> columns, String value) {
+    Builder(final List<String> columns, final String value) {
       super(columns);
       this.value = value;
     }
@@ -72,12 +74,12 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
       return this;
     }
 
-    public Builder<S> wildcard(Wildcard wildcard) {
+    public Builder<S> wildcard(final Wildcard wildcard) {
       this.wildcard = wildcard;
       return this;
     }
 
-    public Builder<S> minChar(int minChar) {
+    public Builder<S> minChar(final int minChar) {
       this.minChar = minChar;
       return this;
     }
@@ -93,7 +95,7 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
     }
   }
 
-  private LikeSpecification(Builder<T> builder) {
+  private LikeSpecification(final Builder<T> builder) {
     super(builder);
     this.value = builder.value;
     this.isIgnoreCase = builder.isIgnoreCase;

@@ -37,16 +37,17 @@ public class InSpecification<T, P> extends CompositeSpecification<T, P> {
 
   @Override
   Predicate toCriteriaPredicate(
-          Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
     return getPath(root).in(values);
   }
 
+  /** Builder for {@link InSpecification}. */
   public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<InSpecification<S, T>> {
 
     private final Collection<T> values;
 
-    Builder(List<String> columns, Collection<T> values) {
+    Builder(final List<String> columns, final Collection<T> values) {
       super(columns);
       this.values = values;
     }
@@ -62,7 +63,7 @@ public class InSpecification<T, P> extends CompositeSpecification<T, P> {
     }
   }
 
-  private InSpecification(Builder<T, P> builder) {
+  private InSpecification(final Builder<T, P> builder) {
     super(builder);
     this.values = builder.values;
   }

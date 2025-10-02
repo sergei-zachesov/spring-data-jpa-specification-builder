@@ -38,7 +38,7 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
   protected final P min;
   protected final P max;
 
-  protected ComparisonSpecification(Builder<T, P> builder) {
+  protected ComparisonSpecification(final Builder<T, P> builder) {
     super(builder);
     this.min = builder.min;
     this.max = builder.max;
@@ -46,13 +46,14 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
 
   @Override
   protected Predicate toCriteriaPredicate(
-      Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
     Path<P> path = getPath(root);
     return toPredicate(builder, path);
   }
 
-  abstract Predicate toPredicate(CriteriaBuilder builder, Path<P> path);
+  abstract Predicate toPredicate(final CriteriaBuilder builder, final Path<P> path);
 
+  /** Builder for {@link ComparisonSpecification}. */
   public static class Builder<S, T extends Comparable<? super T>>
       extends CompositeSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<List<ComparisonSpecification<S, T>>> {
@@ -62,26 +63,26 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
     private Bound minBound = Bound.INCLUSIVE;
     private Bound maxBound = Bound.INCLUSIVE;
 
-    Builder(List<String> columns) {
+    Builder(final List<String> columns) {
       super(columns);
     }
 
-    private Builder<S, T> min(T min) {
+    private Builder<S, T> min(final T min) {
       this.min = min;
       return self();
     }
 
-    private Builder<S, T> max(T max) {
+    private Builder<S, T> max(final T max) {
       this.max = max;
       return self();
     }
 
-    public Builder<S, T> minBound(Bound minBound) {
+    public Builder<S, T> minBound(final Bound minBound) {
       this.minBound = minBound;
       return self();
     }
 
-    public Builder<S, T> maxBound(Bound maxBound) {
+    public Builder<S, T> maxBound(final Bound maxBound) {
       this.maxBound = maxBound;
       return self();
     }

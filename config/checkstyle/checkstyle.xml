@@ -10,17 +10,46 @@
     <property name="severity" value="warning"/>
     <property name="fileExtensions" value="java"/>
 
+    <module name="Header">
+        <property name="headerFile" value="${configDirectory}/java-header"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="ignoreLines" value="1, 2"/>
+    </module>
+
     <module name="TreeWalker">
         <!--        Disable in IDE: Editor -> Code Style -> Java -> Imports,-->
         <!--        Class count to use import with **: 100-->
         <!--        Names count to use static import with "*': 100-->
         <module name="AvoidStarImport"/>
+
+        <!-- <module name="MissingJavadocMethod"/> invalid -->
+        <module name="MissingJavadocType">
+            <property name="id" value="MissingJavadocTypeId"/>
+        </module>
+
+        <module name="SummaryJavadoc">
+            <property name="forbiddenSummaryFragments"
+                      value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
+        </module>
+
+        <module name="FinalParameters"/>
+
+        <!-- https://plugins.jetbrains.com/plugin/8527-google-java-format/-->
+        <module name="Indentation">
+            <property name="basicOffset" value="2"/>
+            <property name="braceAdjustment" value="2"/>
+            <property name="caseIndent" value="2"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="4"/>
+            <property name="arrayInitIndent" value="2"/>
+        </module>
     </module>
 
 
-    <!--    <module name="SummaryJavadoc">-->
-    <!--        <property name="forbiddenSummaryFragments"-->
-    <!--                  value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>-->
-    <!--    </module>-->
+<!--    https://stackoverflow.com/a/65594532/17965846-->
+    <module name="SuppressionSingleFilter">
+        <property name="files" value=".*[\\/]src[\\/]test[\\/]"/>
+        <property name="id" value="MissingJavadocTypeId"/>
+    </module>
 
 </module>

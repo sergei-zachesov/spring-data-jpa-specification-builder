@@ -36,16 +36,17 @@ public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
 
   @Override
   Predicate toCriteriaPredicate(
-      Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
 
     Path<?> path = getPath(root, JoinType.LEFT);
     return isNot ? path.isNotNull() : path.isNull();
   }
 
+  /** Builder for {@link NullSpecification}. */
   public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
       implements ObjectBuilder<NullSpecification<S, T>> {
 
-    Builder(List<String> columns) {
+    Builder(final List<String> columns) {
       super(columns);
     }
 
@@ -60,7 +61,7 @@ public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
     }
   }
 
-  private NullSpecification(Builder<T, P> builder) {
+  private NullSpecification(final Builder<T, P> builder) {
     super(builder);
   }
 }

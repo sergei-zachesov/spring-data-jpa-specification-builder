@@ -61,20 +61,22 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
   @Override
   public final Predicate toPredicate(
-          Root<T> root, @Nullable CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+      final Root<T> root,
+      @Nullable final CriteriaQuery<?> query,
+      final CriteriaBuilder criteriaBuilder) {
     query.distinct(distinct);
     return toCriteriaPredicate(root, query, criteriaBuilder);
   }
 
   abstract Predicate toCriteriaPredicate(
-          Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder);
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder);
 
-  protected Path<P> getPath(Root<T> root) {
+  protected Path<P> getPath(final Root<T> root) {
     return getPath(root, joinType);
   }
 
   @SuppressWarnings("unchecked")
-  protected Path<P> getPath(Root<T> root, JoinType joinType) {
+  protected Path<P> getPath(final Root<T> root, final JoinType joinType) {
     Path<P> path = null;
     From<?, ?> from = root;
     Class<?> javaType = root.getJavaType();
@@ -102,7 +104,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     return path;
   }
 
-  private boolean isObjectAssociation(String column, Class<?> javaType) {
+  private boolean isObjectAssociation(final String column, final Class<?> javaType) {
     Field[] fields = javaType.getDeclaredFields();
     Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
@@ -115,7 +117,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
         || field.isAnnotationPresent(ManyToMany.class);
   }
 
-  private boolean isElementCollection(String column, Class<?> javaType) {
+  private boolean isElementCollection(final String column, final Class<?> javaType) {
     Field[] fields = javaType.getDeclaredFields();
     Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
@@ -124,7 +126,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     return field.isAnnotationPresent(ElementCollection.class);
   }
 
-  protected Join<?, ?> joinFetch(From<?, ?> from, String column, JoinType type) {
+  protected Join<?, ?> joinFetch(final From<?, ?> from, final String column, final JoinType type) {
     if (isFetch) {
       return (Join<?, ?>) from.fetch(column, type);
     } else {
@@ -133,7 +135,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
   }
 
   private Optional<Join<?, ?>> getJoin(
-      Set<? extends Join<?, ?>> joins, String column, JoinType joinType) {
+      final Set<? extends Join<?, ?>> joins, final String column, final JoinType joinType) {
     if (joins == null || joins.isEmpty()) {
       return Optional.empty();
     }
@@ -164,16 +166,16 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     private JoinType joinType = JoinType.INNER;
     private boolean isFetch = false;
 
-    Builder(List<String> columns) {
+    Builder(final List<String> columns) {
       this.columns = columns;
     }
 
-    public BuilderT connection(BooleanOperator connection) {
+    public BuilderT connection(final BooleanOperator connection) {
       this.connection = connection;
       return self();
     }
 
-    public BuilderT join(JoinType joinType) {
+    public BuilderT join(final JoinType joinType) {
       this.joinType = joinType;
       return self();
     }
@@ -191,7 +193,8 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     protected abstract BuilderT self();
   }
 
-  protected <BuilderT extends Builder<BuilderT>> CompositeSpecification(Builder<BuilderT> builder) {
+  protected <BuilderT extends Builder<BuilderT>> CompositeSpecification(
+      final Builder<BuilderT> builder) {
     this.columns = builder.columns;
     this.connection = builder.connection;
     this.isNot = builder.isNot;

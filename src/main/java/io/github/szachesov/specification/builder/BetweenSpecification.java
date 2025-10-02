@@ -18,18 +18,26 @@
 package io.github.szachesov.specification.builder;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
+/**
+ * Predicate of between (BETWEEN [SYMMETRIC]).
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+ * @param <P> target predicate type, maybe {@link Join}
+ */
 public class BetweenSpecification<T, P extends Comparable<? super P>>
     extends ComparisonSpecification<T, P> {
 
-  protected BetweenSpecification(Builder<T, P> builder) {
+  protected BetweenSpecification(final Builder<T, P> builder) {
     super(builder);
   }
 
   @Override
-  Predicate toPredicate(CriteriaBuilder builder, Path<P> path) {
+  Predicate toPredicate(final CriteriaBuilder builder, final Path<P> path) {
     return builder.between(path, min, max);
   }
 }

@@ -36,41 +36,41 @@ public class SpecificationBuilder<S> {
   private final List<CompositeSpecification<S, ?>> specifications = new ArrayList<>();
   private boolean isDistinct = true;
 
-  public SpecificationBuilder<S> distinct(boolean isDistinct) {
+  public SpecificationBuilder<S> distinct(final boolean isDistinct) {
     this.isDistinct = isDistinct;
     return this;
   }
 
   // inner predicate
-  public SpecificationBuilder<S> inner(CompositeSpecification<S, ?> spec) {
+  public SpecificationBuilder<S> inner(final CompositeSpecification<S, ?> spec) {
     specifications.add(spec);
     return this;
   }
 
   // Equal to(=)
-  public SpecificationBuilder<S> notEqual(String column, Object value) {
+  public SpecificationBuilder<S> notEqual(final String column, final Object value) {
     return equal(column, value, EqualsSpecification.Builder::not);
   }
 
-  public SpecificationBuilder<S> equal(String column, Object value) {
+  public SpecificationBuilder<S> equal(final String column, final Object value) {
     return equal(column, value, EqualsSpecification.Builder::self);
   }
 
   public SpecificationBuilder<S> equal(
-      String column,
-      Object value,
-      Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
+      final String column,
+      final Object value,
+      final Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
     return equal(splitColumn(column), value, fn);
   }
 
-  public SpecificationBuilder<S> equal(List<String> columns, Object value) {
+  public SpecificationBuilder<S> equal(final List<String> columns, final Object value) {
     return equal(columns, value, EqualsSpecification.Builder::self);
   }
 
   public SpecificationBuilder<S> equal(
-      List<String> columns,
-      Object value,
-      Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
+      final List<String> columns,
+      final Object value,
+      final Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
     if (value == null) {
       return this;
     }
@@ -82,25 +82,25 @@ public class SpecificationBuilder<S> {
 
   // Equal to one of multiple possible values(IN)
 
-  public <V> SpecificationBuilder<S> in(String column, Collection<V> values) {
+  public <V> SpecificationBuilder<S> in(final String column, final Collection<V> values) {
     return in(column, values, InSpecification.Builder::self);
   }
 
   public <V> SpecificationBuilder<S> in(
-      String column,
-      Collection<V> values,
-      Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
+      final String column,
+      final Collection<V> values,
+      final Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
     return in(splitColumn(column), values, fn);
   }
 
-  public <V> SpecificationBuilder<S> in(List<String> columns, Collection<V> values) {
+  public <V> SpecificationBuilder<S> in(final List<String> columns, final Collection<V> values) {
     return in(columns, values, InSpecification.Builder::self);
   }
 
   public <V> SpecificationBuilder<S> in(
-      List<String> columns,
-      Collection<V> values,
-      Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
+      final List<String> columns,
+      final Collection<V> values,
+      final Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
     if (values == null || values.isEmpty()) {
       return this;
     }
@@ -111,33 +111,33 @@ public class SpecificationBuilder<S> {
   }
 
   // Character pattern(LIKE)
-  public SpecificationBuilder<S> like(String column, String value) {
+  public SpecificationBuilder<S> like(final String column, final String value) {
     return like(column, value, LikeSpecification.Builder::self);
   }
 
   public SpecificationBuilder<S> like(
-      String column,
-      String value,
-      Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
+      final String column,
+      final String value,
+      final Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
     return like(splitColumn(column), value, fn);
   }
 
-  public SpecificationBuilder<S> like(List<String> columns, String value) {
+  public SpecificationBuilder<S> like(final List<String> columns, final String value) {
     return like(columns, value, LikeSpecification.Builder::self);
   }
 
   public SpecificationBuilder<S> like(
-      List<String> columns,
-      String value,
-      Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
+      final List<String> columns,
+      final String value,
+      final Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
     if (value == null || value.isEmpty()) {
       return this;
     }
 
     LikeSpecification<S> spec = fn.apply(new LikeSpecification.Builder<>(columns, value)).build();
 
-    value = value.trim();
-    if (value.length() < spec.getMinChar()) {
+    String trimValue = value.trim();
+    if (trimValue.length() < spec.getMinChar()) {
       return this;
     }
 
@@ -147,24 +147,26 @@ public class SpecificationBuilder<S> {
 
   // Comparison: BETWEEN, >, <, >=, <=
 
-  public SpecificationBuilder<S> between(String column) {
+  public SpecificationBuilder<S> between(final String column) {
     return between(column, ComparisonSpecification.Builder::self);
   }
 
   public <T extends Comparable<? super T>> SpecificationBuilder<S> between(
-      String column,
-      Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>> fn) {
+      final String column,
+      final Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>>
+          fn) {
     return between(splitColumn(column), fn);
   }
 
-  public SpecificationBuilder<S> between(List<String> columns) {
+  public SpecificationBuilder<S> between(final List<String> columns) {
     return between(columns, ComparisonSpecification.Builder::self);
   }
 
   // https://stackoverflow.com/questions/22588518/lambda-expression-and-generic-defined-only-in-method
   public <T extends Comparable<? super T>> SpecificationBuilder<S> between(
-      List<String> columns,
-      Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>> fn) {
+      final List<String> columns,
+      final Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>>
+          fn) {
     ComparisonSpecification.Builder<S, T> builder =
         fn.apply(new ComparisonSpecification.Builder<>(columns));
 
@@ -177,37 +179,37 @@ public class SpecificationBuilder<S> {
 
   // Compare to null
 
-  public SpecificationBuilder<S> isNotNull(String column) {
+  public SpecificationBuilder<S> isNotNull(final String column) {
     return isNull(column, true, CompositeSpecification.Builder::not);
   }
 
-  public SpecificationBuilder<S> isNull(String column) {
+  public SpecificationBuilder<S> isNull(final String column) {
     return isNull(column, true);
   }
 
-  public SpecificationBuilder<S> isNull(String column, Boolean isActive) {
+  public SpecificationBuilder<S> isNull(final String column, final Boolean isActive) {
     return isNull(column, isActive, NullSpecification.Builder::self);
   }
 
   public <T> SpecificationBuilder<S> isNull(
-      String column,
-      boolean isActive,
-      Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
+      final String column,
+      final boolean isActive,
+      final Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
     return isNull(splitColumn(column), isActive, fn);
   }
 
-  public SpecificationBuilder<S> isNull(List<String> columns) {
+  public SpecificationBuilder<S> isNull(final List<String> columns) {
     return isNull(columns, true);
   }
 
-  public SpecificationBuilder<S> isNull(List<String> columns, Boolean isActive) {
+  public SpecificationBuilder<S> isNull(final List<String> columns, final Boolean isActive) {
     return isNull(columns, isActive, NullSpecification.Builder::self);
   }
 
   public <T> SpecificationBuilder<S> isNull(
-      List<String> columns,
-      Boolean isActive,
-      Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
+      final List<String> columns,
+      final Boolean isActive,
+      final Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
     if (!Boolean.TRUE.equals(isActive)) {
       return this;
     }
@@ -218,7 +220,7 @@ public class SpecificationBuilder<S> {
     return this;
   }
 
-  private List<String> splitColumn(String column) {
+  private List<String> splitColumn(final String column) {
     return Arrays.asList(column.split("\\."));
   }
 

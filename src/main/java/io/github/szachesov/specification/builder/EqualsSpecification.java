@@ -35,17 +35,18 @@ public class EqualsSpecification<T> extends CompositeSpecification<T, Object> {
 
   @Override
   Predicate toCriteriaPredicate(
-      Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
     Path<Object> path = getPath(root);
 
     return isNot ? criteriaBuilder.notEqual(path, value) : criteriaBuilder.equal(path, value);
   }
 
+  /** Builder for {@link EqualsSpecification}. */
   public static class Builder<S> extends CompositeSpecification.Builder<Builder<S>>
       implements ObjectBuilder<EqualsSpecification<S>> {
     private final Object value;
 
-    Builder(List<String> columns, Object value) {
+    Builder(final List<String> columns, final Object value) {
       super(columns);
       this.value = value;
     }
@@ -61,7 +62,7 @@ public class EqualsSpecification<T> extends CompositeSpecification<T, Object> {
     }
   }
 
-  private EqualsSpecification(Builder<T> builder) {
+  private EqualsSpecification(final Builder<T> builder) {
     super(builder);
     this.value = builder.value;
   }

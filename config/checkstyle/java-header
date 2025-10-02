@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Sergei Zachesov and others.
+ * Copyright ${CREATION_YEAR} Sergei Zachesov and others.
  * https://github.com/sergei-zachesov/spring-data-jpa-specification-builder
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +14,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.github.szachesov.specification.builder;
-
-/**
- * Base interface for all object builders.
- *
- * @param <T> the type that will be built.
- */
-public interface ObjectBuilder<T> {
-  T build();
-}

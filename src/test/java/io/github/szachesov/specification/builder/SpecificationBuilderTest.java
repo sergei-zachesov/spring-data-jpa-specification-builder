@@ -41,7 +41,7 @@ class SpecificationBuilderTest {
   @Autowired private GroupRepository groupRepository;
 
   @BeforeAll
-  static void init(@Autowired GroupRepository groupRepository) {
+  static void init(@Autowired final GroupRepository groupRepository) {
     groupRepository.saveAll(TestData.croupsAll());
   }
 
