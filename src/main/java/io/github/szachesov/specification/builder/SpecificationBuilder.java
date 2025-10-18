@@ -17,6 +17,7 @@
 
 package io.github.szachesov.specification.builder;
 
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,114 +30,238 @@ import org.springframework.data.jpa.domain.Specification;
  * A builder aggregating specifications describing all SQL predicates.
  *
  * <p><a href="https://en.wikipedia.org/wiki/SQL_syntax#Operators">SQL operators</a>
+ *
+ * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
  */
 @NoArgsConstructor(staticName = "builder")
-public class SpecificationBuilder<S> {
+public class SpecificationBuilder<T> {
 
-  private final List<CompositeSpecification<S, ?>> specifications = new ArrayList<>();
-  private boolean isDistinct = true;
+  private final List<CompositeSpecification<T, ?>> specifications = new ArrayList<>();
+  private boolean distinct = true;
 
-  public SpecificationBuilder<S> distinct(final boolean isDistinct) {
-    this.isDistinct = isDistinct;
+  /**
+   * Specify whether duplicate query results will be eliminated. A true value will cause duplicates
+   * to be eliminated.
+   *
+   * <p>Example: {@code SELECT DISTINCT ...}
+   *
+   * @param distinct boolean value specifying whether duplicate results must be eliminated from the
+   *     query result or whether they must be retained
+   */
+  public SpecificationBuilder<T> distinct(final boolean distinct) {
+    this.distinct = distinct;
     return this;
   }
 
   // inner predicate
-  public SpecificationBuilder<S> inner(final CompositeSpecification<S, ?> spec) {
+
+  /**
+   * Logical operations grouped with parentheses.
+   *
+   * <p>Example: {@code ... OR (column_1 = 1 AND column_2 = 2) AND...}
+   *
+   * @param spec specification representing grouped logical predicates.
+   */
+  public SpecificationBuilder<T> inner(final CompositeSpecification<T, ?> spec) {
     specifications.add(spec);
     return this;
   }
 
-  // Equal to(=)
-  public SpecificationBuilder<S> notEqual(final String column, final Object value) {
+  /**
+   * Not Equal to.
+   *
+   * <p>Example: {@code ...WHERE column != 1...}
+   *
+   * @param column column name.
+   * @param value value of predicate.
+   */
+  public SpecificationBuilder<T> notEqual(final String column, final Object value) {
     return equal(column, value, EqualsSpecification.Builder::not);
   }
 
-  public SpecificationBuilder<S> equal(final String column, final Object value) {
+  /**
+   * Equal to.
+   *
+   * <p>Example: {@code ...WHERE column = 1...}
+   *
+   * @param column column name.
+   * @param value value of predicate.
+   */
+  public SpecificationBuilder<T> equal(final String column, final Object value) {
     return equal(column, value, EqualsSpecification.Builder::self);
   }
 
-  public SpecificationBuilder<S> equal(
+  /**
+   * Equal to.
+   *
+   * <p>Example: {@code ...WHERE column = 1...}
+   *
+   * @param column column name.
+   * @param value value of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public SpecificationBuilder<T> equal(
       final String column,
       final Object value,
-      final Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
+      final Function<EqualsSpecification.Builder<T>, ObjectBuilder<EqualsSpecification<T>>> fn) {
     return equal(splitColumn(column), value, fn);
   }
 
-  public SpecificationBuilder<S> equal(final List<String> columns, final Object value) {
+  /**
+   * Equal to.
+   *
+   * <p>Example: {@code ... LEFT JOIN table_join ... WHERE table_join.column_join = 1...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param value value of predicate.
+   */
+  public SpecificationBuilder<T> equal(final List<String> columns, final Object value) {
     return equal(columns, value, EqualsSpecification.Builder::self);
   }
 
-  public SpecificationBuilder<S> equal(
+  /**
+   * Equal to.
+   *
+   * <p>Example: {@code ... LEFT JOIN table_join ... WHERE table_join.column = 1...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param value value of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public SpecificationBuilder<T> equal(
       final List<String> columns,
       final Object value,
-      final Function<EqualsSpecification.Builder<S>, ObjectBuilder<EqualsSpecification<S>>> fn) {
-    if (value == null) {
-      return this;
-    }
-    EqualsSpecification<S> spec =
+      final Function<EqualsSpecification.Builder<T>, ObjectBuilder<EqualsSpecification<T>>> fn) {
+    if (value == null) return this;
+
+    final EqualsSpecification<T> spec =
         fn.apply(new EqualsSpecification.Builder<>(columns, value)).build();
     specifications.add(spec);
     return this;
   }
 
-  // Equal to one of multiple possible values(IN)
-
-  public <V> SpecificationBuilder<S> in(final String column, final Collection<V> values) {
+  /**
+   * Equal to one of multiple possible values.
+   *
+   * <p>Example: {@code WHERE column IN (101, 103, 209)...}
+   *
+   * @param column column name.
+   * @param values value of predicate.
+   */
+  public <V> SpecificationBuilder<T> in(final String column, final Collection<V> values) {
     return in(column, values, InSpecification.Builder::self);
   }
 
-  public <V> SpecificationBuilder<S> in(
+  /**
+   * Equal to one of multiple possible values.
+   *
+   * <p>Example: {@code WHERE column IN (101, 103, 209)...}
+   *
+   * @param column column name.
+   * @param values values of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public <V> SpecificationBuilder<T> in(
       final String column,
       final Collection<V> values,
-      final Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
+      final Function<InSpecification.Builder<T, V>, ObjectBuilder<InSpecification<T, V>>> fn) {
     return in(splitColumn(column), values, fn);
   }
 
-  public <V> SpecificationBuilder<S> in(final List<String> columns, final Collection<V> values) {
+  /**
+   * Equal to one of multiple possible values.
+   *
+   * <p>Example: {@code ... LEFT JOIN table_join ... WHERE table_join.column IN (101, 103, 209)...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param values values of predicate.
+   */
+  public <V> SpecificationBuilder<T> in(final List<String> columns, final Collection<V> values) {
     return in(columns, values, InSpecification.Builder::self);
   }
 
-  public <V> SpecificationBuilder<S> in(
+  /**
+   * Equal to one of multiple possible values.
+   *
+   * <p>Example: {@code ...LEFT JOIN table_join ... WHERE table_join.column IN (101, 103, 209)...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param values values of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public <V> SpecificationBuilder<T> in(
       final List<String> columns,
       final Collection<V> values,
-      final Function<InSpecification.Builder<S, V>, ObjectBuilder<InSpecification<S, V>>> fn) {
+      final Function<InSpecification.Builder<T, V>, ObjectBuilder<InSpecification<T, V>>> fn) {
     if (values == null || values.isEmpty()) {
       return this;
     }
 
-    InSpecification<S, V> spec = fn.apply(new InSpecification.Builder<>(columns, values)).build();
+    final InSpecification<T, V> spec =
+        fn.apply(new InSpecification.Builder<>(columns, values)).build();
     specifications.add(spec);
     return this;
   }
 
-  // Character pattern(LIKE)
-  public SpecificationBuilder<S> like(final String column, final String value) {
+  /**
+   * Contains a character pattern.
+   *
+   * <p>Example: {@code ... WHERE column LIKE '%Will%'...}
+   *
+   * @param column column name.
+   * @param value value of predicate.
+   */
+  public SpecificationBuilder<T> like(final String column, final String value) {
     return like(column, value, LikeSpecification.Builder::self);
   }
 
-  public SpecificationBuilder<S> like(
+  /**
+   * Contains a character pattern.
+   *
+   * <p>Example: {@code ... WHERE column LIKE '%Will%'...}
+   *
+   * @param column column name.
+   * @param value value of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public SpecificationBuilder<T> like(
       final String column,
       final String value,
-      final Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
+      final Function<LikeSpecification.Builder<T>, ObjectBuilder<LikeSpecification<T>>> fn) {
     return like(splitColumn(column), value, fn);
   }
 
-  public SpecificationBuilder<S> like(final List<String> columns, final String value) {
+  /**
+   * Contains a character pattern.
+   *
+   * <p>Example: {@code ... LEFT JOIN table_join ... WHERE table_join.column LIKE '%Will%'...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param value value of predicate.
+   */
+  public SpecificationBuilder<T> like(final List<String> columns, final String value) {
     return like(columns, value, LikeSpecification.Builder::self);
   }
 
-  public SpecificationBuilder<S> like(
+  /**
+   * Contains a character pattern.
+   *
+   * <p>Example: {@code ... LEFT JOIN table_join ... WHERE table_join.column LIKE '%Will%'...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param value value of predicate.
+   * @param fn function of the builder of additional predicate parameters.
+   */
+  public SpecificationBuilder<T> like(
       final List<String> columns,
       final String value,
-      final Function<LikeSpecification.Builder<S>, ObjectBuilder<LikeSpecification<S>>> fn) {
-    if (value == null || value.isEmpty()) {
-      return this;
-    }
+      final Function<LikeSpecification.Builder<T>, ObjectBuilder<LikeSpecification<T>>> fn) {
+    if (value == null || value.isEmpty()) return this;
 
-    LikeSpecification<S> spec = fn.apply(new LikeSpecification.Builder<>(columns, value)).build();
+    final LikeSpecification<T> spec =
+        fn.apply(new LikeSpecification.Builder<>(columns, value)).build();
 
-    String trimValue = value.trim();
+    final String trimValue = value.trim();
     if (trimValue.length() < spec.getMinChar()) {
       return this;
     }
@@ -147,27 +272,51 @@ public class SpecificationBuilder<S> {
 
   // Comparison: BETWEEN, >, <, >=, <=
 
-  public SpecificationBuilder<S> between(final String column) {
-    return between(column, ComparisonSpecification.Builder::self);
-  }
-
-  public <T extends Comparable<? super T>> SpecificationBuilder<S> between(
+  /**
+   * Between the range, the extreme values can be infinite({@code null}).
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column > '2012-01-31' ...}
+   *   <li>{@code ... WHERE column < 50000.00 ...}
+   *   <li>{@code ... WHERE column >= 2 ...}
+   *   <li>{@code ... WHERE column <= 0.05 ...}
+   *   <li>{@code ... WHERE column BETWEEN 100.00 AND 500.00 ...}
+   * </ul>
+   *
+   * @param column column name.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
       final String column,
-      final Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>>
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
           fn) {
     return between(splitColumn(column), fn);
   }
 
-  public SpecificationBuilder<S> between(final List<String> columns) {
-    return between(columns, ComparisonSpecification.Builder::self);
-  }
-
-  // https://stackoverflow.com/questions/22588518/lambda-expression-and-generic-defined-only-in-method
-  public <T extends Comparable<? super T>> SpecificationBuilder<S> between(
+  /**
+   * Between the range, the extreme values can be infinite({@code null}).
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column > '2012-01-31' ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column < 50000.00 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column >= 2 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column <= 0.05 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column BETWEEN 100.00 AND 500.00
+   *       ...}
+   * </ul>
+   *
+   * @param columns join column names are listed before the target one.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
       final List<String> columns,
-      final Function<ComparisonSpecification.Builder<S, T>, ComparisonSpecification.Builder<S, T>>
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
           fn) {
-    ComparisonSpecification.Builder<S, T> builder =
+    final ComparisonSpecification.Builder<T, P> builder =
         fn.apply(new ComparisonSpecification.Builder<>(columns));
 
     if (builder.isEmptyValues()) return this;
@@ -177,44 +326,97 @@ public class SpecificationBuilder<S> {
     return this;
   }
 
-  // Compare to null
-
-  public SpecificationBuilder<S> isNotNull(final String column) {
+  /**
+   * Compare to not null.
+   *
+   * <p>Examples: {@code ... WHERE column IS NOT NULL ...}
+   *
+   * @param column column name.
+   */
+  public SpecificationBuilder<T> isNotNull(final String column) {
     return isNull(column, true, CompositeSpecification.Builder::not);
   }
 
-  public SpecificationBuilder<S> isNull(final String column) {
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... WHERE column IS NULL ...}
+   *
+   * @param column column name.
+   */
+  public SpecificationBuilder<T> isNull(final String column) {
     return isNull(column, true);
   }
 
-  public SpecificationBuilder<S> isNull(final String column, final Boolean isActive) {
-    return isNull(column, isActive, NullSpecification.Builder::self);
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... WHERE column IS NULL ...}
+   *
+   * @param column column name.
+   * @param active - activate the predicate?
+   */
+  public SpecificationBuilder<T> isNull(final String column, final Boolean active) {
+    return isNull(column, active, NullSpecification.Builder::self);
   }
 
-  public <T> SpecificationBuilder<S> isNull(
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... WHERE column IS NULL ...}
+   *
+   * @param column column name.
+   * @param active - activate the predicate?
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P> SpecificationBuilder<T> isNull(
       final String column,
-      final boolean isActive,
-      final Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
-    return isNull(splitColumn(column), isActive, fn);
+      final boolean active,
+      final Function<NullSpecification.Builder<T, P>, ObjectBuilder<NullSpecification<T, P>>> fn) {
+    return isNull(splitColumn(column), active, fn);
   }
 
-  public SpecificationBuilder<S> isNull(final List<String> columns) {
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... LEFT JOIN table_join ... WHERE table_join.column IS NULL ...}
+   *
+   * @param columns join column names are listed before the target one.
+   */
+  public SpecificationBuilder<T> isNull(final List<String> columns) {
     return isNull(columns, true);
   }
 
-  public SpecificationBuilder<S> isNull(final List<String> columns, final Boolean isActive) {
-    return isNull(columns, isActive, NullSpecification.Builder::self);
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... LEFT JOIN table_join ... WHERE table_join.column IS NULL ...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param active - activate the predicate?
+   */
+  public SpecificationBuilder<T> isNull(final List<String> columns, final Boolean active) {
+    return isNull(columns, active, NullSpecification.Builder::self);
   }
 
-  public <T> SpecificationBuilder<S> isNull(
+  /**
+   * Compare to null (missing data).
+   *
+   * <p>Examples: {@code ... LEFT JOIN table_join ... WHERE table_join.column IS NULL ...}
+   *
+   * @param columns join column names are listed before the target one.
+   * @param active - activate the predicate?
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P> SpecificationBuilder<T> isNull(
       final List<String> columns,
-      final Boolean isActive,
-      final Function<NullSpecification.Builder<S, T>, ObjectBuilder<NullSpecification<S, T>>> fn) {
-    if (!Boolean.TRUE.equals(isActive)) {
+      final Boolean active,
+      final Function<NullSpecification.Builder<T, P>, ObjectBuilder<NullSpecification<T, P>>> fn) {
+    if (!Boolean.TRUE.equals(active)) {
       return this;
     }
 
-    NullSpecification<S, T> spec = fn.apply(new NullSpecification.Builder<>(columns)).build();
+    NullSpecification<T, P> spec = fn.apply(new NullSpecification.Builder<>(columns)).build();
 
     specifications.add(spec);
     return this;
@@ -224,16 +426,17 @@ public class SpecificationBuilder<S> {
     return Arrays.asList(column.split("\\."));
   }
 
-  public Specification<S> build() {
+  /** Builds a {@link Specification}. */
+  public Specification<T> build() {
     if (specifications.isEmpty()) {
       return null;
     }
 
-    if (!isDistinct) {
-      specifications.forEach(s -> s.setDistinct(isDistinct));
+    if (!distinct) {
+      specifications.forEach(s -> s.setDistinct(distinct));
     }
 
-    Specification<S> result = specifications.get(0);
+    Specification<T> result = specifications.getFirst();
     for (int i = 1; i < specifications.size(); i++) {
       result = specifications.get(i).connection.connect(result, specifications.get(i));
     }

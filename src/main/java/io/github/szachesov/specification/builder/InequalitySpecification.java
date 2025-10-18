@@ -36,6 +36,11 @@ public class InequalitySpecification<T, P extends Comparable<? super P>>
 
   private final Sign sign;
 
+  protected InequalitySpecification(final Builder<T, P> builder, final Sign sign) {
+    super(builder);
+    this.sign = sign;
+  }
+
   static <T, P extends Comparable<? super P>> InequalitySpecification<T, P> gt(
       final Builder<T, P> builder) {
     return new InequalitySpecification<>(builder, Sign.GT);
@@ -56,14 +61,9 @@ public class InequalitySpecification<T, P extends Comparable<? super P>>
     return new InequalitySpecification<>(builder, Sign.LTE);
   }
 
-  protected InequalitySpecification(final Builder<T, P> builder, final Sign sign) {
-    super(builder);
-    this.sign = sign;
-  }
-
   @Override
   Predicate toPredicate(final CriteriaBuilder builder, final Path<P> path) {
-    return sign.toPredicate(builder, path, min, max);
+    return sign.toPredicate(builder, path, range);
   }
 
   /**
@@ -76,37 +76,37 @@ public class InequalitySpecification<T, P extends Comparable<? super P>>
   protected enum Sign {
     GT("greater than", ">") {
       @Override
-      <T extends Comparable<? super T>> Predicate toPredicate(
-          final CriteriaBuilder builder, final Path<T> path, final T min, final T max) {
-        return builder.greaterThan(path, min);
+      <P extends Comparable<? super P>> Predicate toPredicate(
+          final CriteriaBuilder builder, final Path<P> path, final Range<P> range) {
+        return builder.greaterThan(path, range.min());
       }
     },
     GTE("greater than or equal to", ">=") {
       @Override
-      <T extends Comparable<? super T>> Predicate toPredicate(
-          final CriteriaBuilder builder, final Path<T> path, final T min, final T max) {
-        return builder.greaterThanOrEqualTo(path, min);
+      <P extends Comparable<? super P>> Predicate toPredicate(
+          final CriteriaBuilder builder, final Path<P> path, final Range<P> range) {
+        return builder.greaterThanOrEqualTo(path, range.max());
       }
     },
     LT("less than", "<") {
       @Override
-      <T extends Comparable<? super T>> Predicate toPredicate(
-          final CriteriaBuilder builder, final Path<T> path, final T min, final T max) {
-        return builder.lessThan(path, max);
+      <P extends Comparable<? super P>> Predicate toPredicate(
+          final CriteriaBuilder builder, final Path<P> path, final Range<P> range) {
+        return builder.lessThan(path, range.max());
       }
     },
     LTE("less than or equal to", "<=") {
       @Override
-      <T extends Comparable<? super T>> Predicate toPredicate(
-          final CriteriaBuilder builder, final Path<T> path, final T min, final T max) {
-        return builder.lessThanOrEqualTo(path, max);
+      <P extends Comparable<? super P>> Predicate toPredicate(
+          final CriteriaBuilder builder, final Path<P> path, final Range<P> range) {
+        return builder.lessThanOrEqualTo(path, range.max());
       }
     };
 
     private final String name;
     private final String description;
 
-    abstract <T extends Comparable<? super T>> Predicate toPredicate(
-        final CriteriaBuilder builder, final Path<T> path, final T min, final T max);
+    abstract <P extends Comparable<? super P>> Predicate toPredicate(
+        CriteriaBuilder builder, Path<P> path, Range<P> range);
   }
 }

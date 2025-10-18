@@ -38,6 +38,6 @@ public class BetweenSpecification<T, P extends Comparable<? super P>>
 
   @Override
   Predicate toPredicate(final CriteriaBuilder builder, final Path<P> path) {
-    return builder.between(path, min, max);
+    return builder.between(path, range.min(), range.max());
   }
 }

@@ -55,8 +55,8 @@ public enum Bound {
   }
 
   abstract <T, P extends Comparable<? super P>> InequalitySpecification<T, P> min(
-      final ComparisonSpecification.Builder<T, P> builder);
+      ComparisonSpecification.Builder<T, P> builder);
 
   abstract <T, P extends Comparable<? super P>> InequalitySpecification<T, P> max(
-      final ComparisonSpecification.Builder<T, P> builder);
+      ComparisonSpecification.Builder<T, P> builder);
 }

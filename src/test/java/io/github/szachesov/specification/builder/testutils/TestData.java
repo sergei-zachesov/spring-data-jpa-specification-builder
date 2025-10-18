@@ -20,9 +20,9 @@ package io.github.szachesov.specification.builder.testutils;
 import static io.github.szachesov.specification.builder.testutils.TestConstants.GROUP_ADMIN;
 import static io.github.szachesov.specification.builder.testutils.TestConstants.GROUP_USER;
 
+import io.github.szachesov.specification.builder.sample.entity.Group;
 import java.util.List;
 import lombok.experimental.UtilityClass;
-import io.github.szachesov.specification.builder.sample.entity.Group;
 
 @UtilityClass
 public class TestData {

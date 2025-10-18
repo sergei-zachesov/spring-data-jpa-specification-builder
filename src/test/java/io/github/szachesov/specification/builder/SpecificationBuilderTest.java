@@ -47,11 +47,11 @@ class SpecificationBuilderTest {
 
   @Test
   void equal_getEntity_byVarchar() {
-    String groupName = TestConstants.GROUP_USER;
-    Specification<Group> spec =
+    final String groupName = TestConstants.GROUP_USER;
+    final Specification<Group> spec =
         SpecificationBuilder.<Group>builder().equal(Group_.NAME, groupName).build();
 
-    List<Group> entities = groupRepository.findAll(spec);
+    final List<Group> entities = groupRepository.findAll(spec);
 
     assertThat(entities).hasSize(1);
     assertThat(entities.getFirst().getName()).isEqualTo(groupName);
@@ -59,23 +59,23 @@ class SpecificationBuilderTest {
 
   @Test
   void equal_notFound_byVarchar() {
-    Specification<Group> spec =
+    final Specification<Group> spec =
         SpecificationBuilder.<Group>builder().equal(Group_.NAME, "Unknown").build();
 
-    List<Group> entities = groupRepository.findAll(spec);
+    final List<Group> entities = groupRepository.findAll(spec);
 
     assertThat(entities).hasSize(0);
   }
 
   @Test
   void equal_getOtherEntity_byNotVarchar() {
-    String groupName = TestConstants.GROUP_USER;
-    Specification<Group> spec =
+    final String groupName = TestConstants.GROUP_USER;
+    final Specification<Group> spec =
         SpecificationBuilder.<Group>builder().equal(Group_.NAME, groupName, b -> b.not()).build();
 
-    List<Group> entities = groupRepository.findAll(spec);
+    final List<Group> entities = groupRepository.findAll(spec);
 
-    List<String> names = entities.stream().map(Group::getName).toList();
+    final List<String> names = entities.stream().map(Group::getName).toList();
     assertThat(names).doesNotContain(groupName);
   }
 }

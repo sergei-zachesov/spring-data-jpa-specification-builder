@@ -37,8 +37,8 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
 
 /**
  * An abstract aggregating class that describes the basic properties and behaviors of predicates.
@@ -50,14 +50,23 @@ import org.springframework.lang.Nullable;
  */
 public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
+  protected final List<String> columns;
+  protected final boolean isNot;
+  BooleanOperator connection;
+  private final JoinType joinType;
+  private final boolean isFetch;
+
   @Setter(AccessLevel.PACKAGE)
   private boolean distinct = true;
 
-  private final JoinType joinType;
-  private final boolean isFetch;
-  BooleanOperator connection;
-  protected final List<String> columns;
-  protected final boolean isNot;
+  protected <BuilderT extends Builder<BuilderT>> CompositeSpecification(
+      final Builder<BuilderT> builder) {
+    this.columns = builder.columns;
+    this.connection = builder.connection;
+    this.isNot = builder.isNot;
+    this.joinType = builder.joinType;
+    this.isFetch = builder.isFetch;
+  }
 
   @Override
   public final Predicate toPredicate(
@@ -69,7 +78,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
   }
 
   abstract Predicate toCriteriaPredicate(
-      final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder);
+      Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder);
 
   protected Path<P> getPath(final Root<T> root) {
     return getPath(root, joinType);
@@ -83,13 +92,13 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
     for (String column : columns) {
       if (isObjectAssociation(column, javaType)) {
-        Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
+        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
 
         from = joinOpt.isPresent() ? joinOpt.get() : joinFetch(from, column, joinType);
         javaType = from.getJavaType();
 
       } else if (isElementCollection(column, javaType)) {
-        Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
+        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
         path = joinOpt.isPresent() ? (Path<P>) joinOpt.get() : from.join(column, joinType);
         break;
       } else {
@@ -105,8 +114,8 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
   }
 
   private boolean isObjectAssociation(final String column, final Class<?> javaType) {
-    Field[] fields = javaType.getDeclaredFields();
-    Field field =
+    final Field[] fields = javaType.getDeclaredFields();
+    final Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
     if (field == null) {
       return false;
@@ -118,8 +127,8 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
   }
 
   private boolean isElementCollection(final String column, final Class<?> javaType) {
-    Field[] fields = javaType.getDeclaredFields();
-    Field field =
+    final Field[] fields = javaType.getDeclaredFields();
+    final Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
     if (field == null) return false;
 
@@ -140,7 +149,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
       return Optional.empty();
     }
 
-    Optional<Join<?, ?>> result = Optional.empty();
+    final Optional<Join<?, ?>> result = Optional.empty();
     for (Join<?, ?> join : joins) {
       if (join.getAttribute().getName().equals(column)) {
         if (join.getJoinType().equals(joinType)) {
@@ -149,9 +158,9 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
           return Optional.of(join);
         }
       }
-      result = getJoin(join.getJoins(), column, joinType);
-      if (result.isPresent()) {
-        return result;
+      final var resultJoin = getJoin(join.getJoins(), column, joinType);
+      if (resultJoin.isPresent()) {
+        return resultJoin;
       }
     }
 
@@ -162,9 +171,9 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
     protected final List<String> columns;
     private BooleanOperator connection = BooleanOperator.AND;
-    private boolean isNot = false;
+    private boolean isNot;
     private JoinType joinType = JoinType.INNER;
-    private boolean isFetch = false;
+    private boolean isFetch;
 
     Builder(final List<String> columns) {
       this.columns = columns;
@@ -191,14 +200,5 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     }
 
     protected abstract BuilderT self();
-  }
-
-  protected <BuilderT extends Builder<BuilderT>> CompositeSpecification(
-      final Builder<BuilderT> builder) {
-    this.columns = builder.columns;
-    this.connection = builder.connection;
-    this.isNot = builder.isNot;
-    this.joinType = builder.joinType;
-    this.isFetch = builder.isFetch;
   }
 }

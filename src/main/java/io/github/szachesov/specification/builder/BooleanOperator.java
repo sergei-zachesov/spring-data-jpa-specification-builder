@@ -34,6 +34,5 @@ public enum BooleanOperator {
     }
   };
 
-  abstract <T> Specification<T> connect(
-      final Specification<T> spec, final Specification<T> connect);
+  abstract <T> Specification<T> connect(Specification<T> spec, Specification<T> connect);
 }

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id "dev.yumi.gradle.licenser" version "2.1.1"
+    id "com.github.ben-manes.versions" version "0.53.0"
 }
 
 group = 'io.github.szachesov'
@@ -12,27 +13,28 @@ repositories {
 }
 
 ext {
-    springVersion = '3.5.4'
-    lombokVersion = '1.18.38'
+    springVersion = '3.5.6'
+    lombokVersion = '1.18.42'
     testcontainersVersion = '1.21.3'
-    hibernateVersion = '6.6.9.Final'
+    hibernateVersion = '7.1.4.Final'
 }
 
 dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springVersion}"
+    implementation 'org.jspecify:jspecify:1.0.0'
 
     implementation "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.0"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springVersion}"
     testImplementation "org.springframework.boot:spring-boot-testcontainers:${springVersion}"
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
     testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
-    testRuntimeOnly 'org.postgresql:postgresql:42.7.7'
+    testRuntimeOnly 'org.postgresql:postgresql:42.7.8'
     testCompileOnly "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
     testAnnotationProcessor "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
 }
@@ -50,6 +52,10 @@ checkstyle {
     ignoreFailures = false
     maxWarnings = 0
     maxErrors = 0
+
+    configProperties = [
+            'configDirectory': rootDir.toString() + "/config/checkstyle"
+    ]
 }
 checkstyleMain {
     source = 'src/main/java'
@@ -63,4 +69,18 @@ license {
     include("**/*.java")
 }
 
-compileJava.dependsOn tasks.applyLicenses
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+tasks.named("dependencyUpdates").configure {
+    checkForGradleUpdate = true
+    gradleReleaseChannel = "current"
+    checkConstraints = true
+    rejectVersionIf {
+        isNonStable(it.candidate.version)
+    }
+}
+

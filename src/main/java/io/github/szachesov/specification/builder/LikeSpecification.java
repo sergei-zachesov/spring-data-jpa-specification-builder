@@ -39,12 +39,20 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
   private final Wildcard wildcard;
   @Getter private final int minChar;
 
+  private LikeSpecification(final Builder<T> builder) {
+    super(builder);
+    this.value = builder.value;
+    this.isIgnoreCase = builder.isIgnoreCase;
+    this.wildcard = builder.wildcard;
+    this.minChar = builder.minChar;
+  }
+
   @Override
   Predicate toCriteriaPredicate(
       final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
-    Path<String> path = getPath(root);
+    final Path<String> path = getPath(root);
 
-    Expression<String> expression;
+    final Expression<String> expression;
     if (isIgnoreCase) {
       expression = builder.upper(path);
       value = value.toUpperCase(Locale.ROOT);
@@ -55,9 +63,13 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
     return builder.like(expression, wildcard.getWithWildcard().apply(value));
   }
 
-  /** Builder for {@link LikeSpecification}. */
-  public static class Builder<S> extends CompositeSpecification.Builder<Builder<S>>
-      implements ObjectBuilder<LikeSpecification<S>> {
+  /**
+   * Builder for {@link LikeSpecification}.
+   *
+   * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+   */
+  public static class Builder<T> extends CompositeSpecification.Builder<Builder<T>>
+      implements ObjectBuilder<LikeSpecification<T>> {
 
     private final String value;
     private boolean isIgnoreCase = true;
@@ -69,37 +81,35 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
       this.value = value;
     }
 
-    public Builder<S> ignoreCase() {
+    /** Case-insensitive comparison. */
+    public Builder<T> ignoreCase() {
       this.isIgnoreCase = true;
       return this;
     }
 
-    public Builder<S> wildcard(final Wildcard wildcard) {
+    /** The location of the SQL wildcard {@link Wildcard}. */
+    public Builder<T> wildcard(final Wildcard wildcard) {
       this.wildcard = wildcard;
       return this;
     }
 
-    public Builder<S> minChar(final int minChar) {
+    /**
+     * The minimum number of characters to compare. If the number of characters in a word is less,
+     * the predicate is ignored.
+     */
+    public Builder<T> minChar(final int minChar) {
       this.minChar = minChar;
       return this;
     }
 
     @Override
-    public LikeSpecification<S> build() {
+    public LikeSpecification<T> build() {
       return new LikeSpecification<>(this);
     }
 
     @Override
-    protected Builder<S> self() {
+    protected Builder<T> self() {
       return this;
     }
-  }
-
-  private LikeSpecification(final Builder<T> builder) {
-    super(builder);
-    this.value = builder.value;
-    this.isIgnoreCase = builder.isIgnoreCase;
-    this.wildcard = builder.wildcard;
-    this.minChar = builder.minChar;
   }
 }

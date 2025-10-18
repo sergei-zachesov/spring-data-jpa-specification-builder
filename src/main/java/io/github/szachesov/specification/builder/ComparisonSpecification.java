@@ -35,31 +35,34 @@ import java.util.List;
 public abstract class ComparisonSpecification<T, P extends Comparable<? super P>>
     extends CompositeSpecification<T, P> {
 
-  protected final P min;
-  protected final P max;
+  protected final Range<P> range;
 
   protected ComparisonSpecification(final Builder<T, P> builder) {
     super(builder);
-    this.min = builder.min;
-    this.max = builder.max;
+    this.range = new Range<>(builder.max, builder.max);
   }
 
   @Override
   protected Predicate toCriteriaPredicate(
       final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
-    Path<P> path = getPath(root);
+    final Path<P> path = getPath(root);
     return toPredicate(builder, path);
   }
 
-  abstract Predicate toPredicate(final CriteriaBuilder builder, final Path<P> path);
+  abstract Predicate toPredicate(CriteriaBuilder builder, Path<P> path);
 
-  /** Builder for {@link ComparisonSpecification}. */
-  public static class Builder<S, T extends Comparable<? super T>>
-      extends CompositeSpecification.Builder<Builder<S, T>>
-      implements ObjectBuilder<List<ComparisonSpecification<S, T>>> {
+  /**
+   * Builder for {@link ComparisonSpecification}.
+   *
+   * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+   * @param <P> target predicate type, maybe {@link Join}
+   */
+  public static class Builder<T, P extends Comparable<? super P>>
+      extends CompositeSpecification.Builder<Builder<T, P>>
+      implements ObjectBuilder<List<ComparisonSpecification<T, P>>> {
 
-    private T min;
-    private T max;
+    private P min;
+    private P max;
     private Bound minBound = Bound.INCLUSIVE;
     private Bound maxBound = Bound.INCLUSIVE;
 
@@ -67,33 +70,37 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
       super(columns);
     }
 
-    private Builder<S, T> min(final T min) {
+    /** Minimum value for comparison. */
+    public Builder<T, P> min(final P min) {
       this.min = min;
       return self();
     }
 
-    private Builder<S, T> max(final T max) {
+    /** Maximum value for comparison. */
+    public Builder<T, P> max(final P max) {
       this.max = max;
       return self();
     }
 
-    public Builder<S, T> minBound(final Bound minBound) {
+    /** The type of the minimum value boundary. */
+    public Builder<T, P> minBound(final Bound minBound) {
       this.minBound = minBound;
       return self();
     }
 
-    public Builder<S, T> maxBound(final Bound maxBound) {
+    /** The type of the maximum value boundary. */
+    public Builder<T, P> maxBound(final Bound maxBound) {
       this.maxBound = maxBound;
       return self();
     }
 
     @Override
-    protected Builder<S, T> self() {
+    protected Builder<T, P> self() {
       return this;
     }
 
     @Override
-    public List<ComparisonSpecification<S, T>> build() {
+    public List<ComparisonSpecification<T, P>> build() {
       if (isEmptyValues()) {
         throw new IllegalArgumentException(
             "One or both of the MIN or MAX parameters must not be null.");
@@ -115,8 +122,8 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
       return !Bound.INCLUSIVE.equals(this.minBound) && !Bound.INCLUSIVE.equals(this.maxBound);
     }
 
-    private List<ComparisonSpecification<S, T>> buildInequalitySpecification() {
-      List<ComparisonSpecification<S, T>> specifications = new ArrayList<>(2);
+    private List<ComparisonSpecification<T, P>> buildInequalitySpecification() {
+      final List<ComparisonSpecification<T, P>> specifications = new ArrayList<>(2);
       if (min != null) {
         specifications.add(minBound.min(this));
       }
@@ -126,4 +133,13 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
       return specifications;
     }
   }
+
+  /**
+   * Range values for the value operation.
+   *
+   * @param min - minimum value for comparison
+   * @param max - maximum value for comparison
+   * @param <P> target predicate type, maybe {@link Join}
+   */
+  protected record Range<P extends Comparable<? super P>>(P min, P max) {}
 }

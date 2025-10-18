@@ -34,34 +34,39 @@ import java.util.List;
  */
 public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
 
+  private NullSpecification(final Builder<T, P> builder) {
+    super(builder);
+  }
+
   @Override
   Predicate toCriteriaPredicate(
       final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
 
-    Path<?> path = getPath(root, JoinType.LEFT);
+    final Path<?> path = getPath(root, JoinType.LEFT);
     return isNot ? path.isNotNull() : path.isNull();
   }
 
-  /** Builder for {@link NullSpecification}. */
-  public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
-      implements ObjectBuilder<NullSpecification<S, T>> {
+  /**
+   * Builder for {@link NullSpecification}.
+   *
+   * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+   * @param <P> target predicate type, maybe {@link Join}
+   */
+  public static class Builder<T, P> extends CompositeSpecification.Builder<Builder<T, P>>
+      implements ObjectBuilder<NullSpecification<T, P>> {
 
     Builder(final List<String> columns) {
       super(columns);
     }
 
     @Override
-    public NullSpecification<S, T> build() {
+    public NullSpecification<T, P> build() {
       return new NullSpecification<>(this);
     }
 
     @Override
-    protected Builder<S, T> self() {
+    protected Builder<T, P> self() {
       return this;
     }
-  }
-
-  private NullSpecification(final Builder<T, P> builder) {
-    super(builder);
   }
 }

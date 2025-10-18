@@ -23,5 +23,7 @@ package io.github.szachesov.specification.builder;
  * @param <T> the type that will be built.
  */
 public interface ObjectBuilder<T> {
+
+  /** Build the builder's target object. */
   T build();
 }

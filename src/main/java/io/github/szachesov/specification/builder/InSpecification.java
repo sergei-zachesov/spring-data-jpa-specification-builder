@@ -35,36 +35,41 @@ public class InSpecification<T, P> extends CompositeSpecification<T, P> {
 
   private final Collection<P> values;
 
+  private InSpecification(final Builder<T, P> builder) {
+    super(builder);
+    this.values = builder.values;
+  }
+
   @Override
   Predicate toCriteriaPredicate(
       final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
     return getPath(root).in(values);
   }
 
-  /** Builder for {@link InSpecification}. */
-  public static class Builder<S, T> extends CompositeSpecification.Builder<Builder<S, T>>
-      implements ObjectBuilder<InSpecification<S, T>> {
+  /**
+   * Builder for {@link InSpecification}.
+   *
+   * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
+   * @param <P> target predicate type, maybe {@link Join}
+   */
+  public static class Builder<T, P> extends CompositeSpecification.Builder<Builder<T, P>>
+      implements ObjectBuilder<InSpecification<T, P>> {
 
-    private final Collection<T> values;
+    private final Collection<P> values;
 
-    Builder(final List<String> columns, final Collection<T> values) {
+    Builder(final List<String> columns, final Collection<P> values) {
       super(columns);
       this.values = values;
     }
 
     @Override
-    public InSpecification<S, T> build() {
+    public InSpecification<T, P> build() {
       return new InSpecification<>(this);
     }
 
     @Override
-    protected Builder<S, T> self() {
+    protected Builder<T, P> self() {
       return this;
     }
-  }
-
-  private InSpecification(final Builder<T, P> builder) {
-    super(builder);
-    this.values = builder.values;
   }
 }
