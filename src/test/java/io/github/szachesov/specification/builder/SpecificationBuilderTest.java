@@ -71,7 +71,9 @@ class SpecificationBuilderTest {
   void equal_getOtherEntity_byNotVarchar() {
     final String groupName = TestConstants.GROUP_USER;
     final Specification<Group> spec =
-        SpecificationBuilder.<Group>builder().equal(Group_.NAME, groupName, b -> b.not()).build();
+        SpecificationBuilder.<Group>builder()
+            .equal(Group_.NAME, groupName, CompositeSpecification.Builder::not)
+            .build();
 
     final List<Group> entities = groupRepository.findAll(spec);
 

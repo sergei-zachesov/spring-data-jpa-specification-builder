@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 
 /**
  * Predicate of between (BETWEEN [SYMMETRIC]).
@@ -31,6 +32,8 @@ import jakarta.persistence.criteria.Root;
  */
 public class BetweenSpecification<T, P extends Comparable<? super P>>
     extends ComparisonSpecification<T, P> {
+
+  @Serial private static final long serialVersionUID = 8452119746129463285L;
 
   protected BetweenSpecification(final Builder<T, P> builder) {
     super(builder);

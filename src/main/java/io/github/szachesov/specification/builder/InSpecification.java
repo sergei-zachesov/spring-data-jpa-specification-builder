@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,8 @@ import java.util.List;
  * @param <P> target predicate type, maybe {@link Join}
  */
 public class InSpecification<T, P> extends CompositeSpecification<T, P> {
+
+  @Serial private static final long serialVersionUID = 4863139718722687097L;
 
   private final Collection<P> values;
 

@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -33,6 +34,8 @@ import lombok.Getter;
  */
 public class InequalitySpecification<T, P extends Comparable<? super P>>
     extends ComparisonSpecification<T, P> {
+
+  @Serial private static final long serialVersionUID = 1908582843545920332L;
 
   private final Sign sign;
 

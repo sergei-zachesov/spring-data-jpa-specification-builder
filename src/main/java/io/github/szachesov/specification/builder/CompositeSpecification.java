@@ -30,6 +30,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,8 @@ import org.springframework.data.jpa.domain.Specification;
  * @param <P> target predicate type, maybe {@link Join}
  */
 public abstract class CompositeSpecification<T, P> implements Specification<T> {
+
+  @Serial private static final long serialVersionUID = -5778517129027250693L;
 
   protected final List<String> columns;
   protected final boolean isNot;
@@ -90,7 +93,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     From<?, ?> from = root;
     Class<?> javaType = root.getJavaType();
 
-    for (String column : columns) {
+    for (final String column : columns) {
       if (isObjectAssociation(column, javaType)) {
         final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
 
@@ -150,7 +153,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     }
 
     final Optional<Join<?, ?>> result = Optional.empty();
-    for (Join<?, ?> join : joins) {
+    for (final Join<?, ?> join : joins) {
       if (join.getAttribute().getName().equals(column)) {
         if (join.getJoinType().equals(joinType)) {
           return Optional.of(join);
@@ -158,7 +161,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
           return Optional.of(join);
         }
       }
-      final var resultJoin = getJoin(join.getJoins(), column, joinType);
+      final Optional<Join<?, ?>> resultJoin = getJoin(join.getJoins(), column, joinType);
       if (resultJoin.isPresent()) {
         return resultJoin;
       }

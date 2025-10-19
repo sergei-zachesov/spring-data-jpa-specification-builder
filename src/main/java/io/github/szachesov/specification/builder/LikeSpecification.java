@@ -23,6 +23,7 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import java.util.List;
 import java.util.Locale;
 import lombok.Getter;
@@ -33,6 +34,8 @@ import lombok.Getter;
  * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
  */
 public class LikeSpecification<T> extends CompositeSpecification<T, String> {
+
+  @Serial private static final long serialVersionUID = -4074284076173199097L;
 
   private String value;
   private final boolean isIgnoreCase;

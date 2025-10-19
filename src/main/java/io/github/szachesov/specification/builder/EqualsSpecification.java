@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -30,6 +31,8 @@ import java.util.List;
  * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
  */
 public class EqualsSpecification<T> extends CompositeSpecification<T, Object> {
+
+  @Serial private static final long serialVersionUID = 637979759818300347L;
 
   private final Object value;
 

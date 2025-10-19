@@ -24,6 +24,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -33,6 +34,8 @@ import java.util.List;
  * @param <P> target predicate type, maybe {@link Join}
  */
 public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
+
+  @Serial private static final long serialVersionUID = 3240395376802943186L;
 
   private NullSpecification(final Builder<T, P> builder) {
     super(builder);

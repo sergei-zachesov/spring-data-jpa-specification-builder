@@ -23,6 +23,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,8 @@ import java.util.List;
  */
 public abstract class ComparisonSpecification<T, P extends Comparable<? super P>>
     extends CompositeSpecification<T, P> {
+
+  @Serial private static final long serialVersionUID = -7540328509379465629L;
 
   protected final Range<P> range;
 
@@ -141,5 +145,7 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
    * @param max - maximum value for comparison
    * @param <P> target predicate type, maybe {@link Join}
    */
-  protected record Range<P extends Comparable<? super P>>(P min, P max) {}
+  protected record Range<P extends Comparable<? super P>>(P min, P max) implements Serializable {
+    @Serial private static final long serialVersionUID = -6357550033396721101L;
+  }
 }

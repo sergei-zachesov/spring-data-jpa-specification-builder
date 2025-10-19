@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'pmd'
     id "dev.yumi.gradle.licenser" version "2.1.1"
     id "com.github.ben-manes.versions" version "0.53.0"
 }
@@ -83,4 +84,12 @@ tasks.named("dependencyUpdates").configure {
         isNonStable(it.candidate.version)
     }
 }
+
+pmd {
+    toolVersion = "7.17.0"
+    consoleOutput = true
+    ruleSetFiles = files("${rootDir}/config/pmd/pmd.xml")
+    ruleSets = []
+}
+
 

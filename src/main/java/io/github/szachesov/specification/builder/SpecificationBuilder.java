@@ -416,7 +416,7 @@ public class SpecificationBuilder<T> {
       return this;
     }
 
-    NullSpecification<T, P> spec = fn.apply(new NullSpecification.Builder<>(columns)).build();
+    final NullSpecification<T, P> spec = fn.apply(new NullSpecification.Builder<>(columns)).build();
 
     specifications.add(spec);
     return this;
