@@ -5,6 +5,8 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
     <description>PMD configuration</description>
 
+    <!-- https://pmd.github.io/-->
+
     <rule ref="category/java/bestpractices.xml">
         <exclude name="UnitTestContainsTooManyAsserts"/>
         <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
@@ -43,7 +45,7 @@
             <property name="checkSetters" value="false"/>
             <property name="violationSuppressXPath"
                       value=".[pmd-java:hasAnnotation('org.junit.jupiter.api.Test')] | .[pmd-java:hasAnnotation('org.junit.jupiter.params.ParameterizedTest')]"/>
-            <property name="booleanMethodPrefixes" value="has,can,have,will,should" />
+            <property name="booleanMethodPrefixes" value="has,can,have,will,should"/>
         </properties>
     </rule>
 
@@ -61,13 +63,13 @@
 
     <rule ref="category/java/codestyle.xml/MethodNamingConventions">
         <properties>
-            <property name="junit5TestPattern" value="[a-zA-Z0-9_]*" />
+            <property name="junit5TestPattern" value="[a-zA-Z0-9_]*"/>
         </properties>
     </rule>
 
     <rule ref="category/java/codestyle.xml/ShortClassName">
         <properties>
-            <property name="minimum" value="4" />
+            <property name="minimum" value="4"/>
         </properties>
     </rule>
 

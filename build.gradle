@@ -1,7 +1,10 @@
+import com.github.spotbugs.snom.Effort
+
 plugins {
     id 'java'
     id 'checkstyle'
     id 'pmd'
+    id 'com.github.spotbugs' version '6.4.4'
     id "dev.yumi.gradle.licenser" version "2.1.1"
     id "com.github.ben-manes.versions" version "0.53.0"
 }
@@ -90,6 +93,13 @@ pmd {
     consoleOutput = true
     ruleSetFiles = files("${rootDir}/config/pmd/pmd.xml")
     ruleSets = []
+}
+
+spotbugs {
+    showProgress = true
+    effort = Effort.MAX
+    reportLevel = 'low' //Confidence.LOW - Access to 'LOW' exceeds its access rights
+    excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
 }
 
 

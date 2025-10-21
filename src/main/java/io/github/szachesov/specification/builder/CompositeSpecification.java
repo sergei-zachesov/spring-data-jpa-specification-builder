@@ -73,10 +73,13 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
   @Override
   public final Predicate toPredicate(
-      final Root<T> root,
+      @Nullable final Root<T> root,
       @Nullable final CriteriaQuery<?> query,
-      final CriteriaBuilder criteriaBuilder) {
-    query.distinct(distinct);
+      @Nullable final CriteriaBuilder criteriaBuilder) {
+    if (query != null) {
+      query.distinct(distinct);
+    }
+
     return toCriteriaPredicate(root, query, criteriaBuilder);
   }
 
