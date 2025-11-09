@@ -197,8 +197,11 @@ class CommonSpecificationBuilderTest extends SpecificationBuilderTest {
             .equal(List.of(Post_.AUTHOR, User_.PHONE), phone, b -> b.join(JoinType.INNER))
             .build();
 
-    final EntityGraph eg =
-        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(Post_.AUTHOR, User_.GROUPS)));
+    final List<String> attributePaths =
+        List.of(
+            DbUtils.joinPath(Post_.AUTHOR, User_.GROUPS),
+            DbUtils.joinPath(Post_.AUTHOR, User_.PROFILE));
+    final EntityGraph eg = DynamicEntityGraph.loading(attributePaths);
     final List<Post> entities = postRepository.findAll(spec, eg);
 
     assertThat(entities)

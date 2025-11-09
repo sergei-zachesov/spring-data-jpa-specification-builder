@@ -45,7 +45,7 @@ public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
   Predicate toCriteriaPredicate(
       final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder criteriaBuilder) {
 
-    final Path<?> path = getPath(root, JoinType.LEFT);
+    final Path<?> path = getPath(root);
     return isNot ? path.isNotNull() : path.isNull();
   }
 
@@ -64,6 +64,7 @@ public class NullSpecification<T, P> extends CompositeSpecification<T, P> {
 
     @Override
     public NullSpecification<T, P> build() {
+      this.join(JoinType.LEFT);
       return new NullSpecification<>(this);
     }
 

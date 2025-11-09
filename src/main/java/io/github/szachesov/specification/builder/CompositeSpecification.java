@@ -56,8 +56,8 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
   protected final List<String> columns;
   protected final boolean isNot;
+  protected final JoinType joinType;
   BooleanOperator connection;
-  private final JoinType joinType;
   private final boolean isFetch;
 
   @Setter(AccessLevel.PACKAGE)
@@ -86,26 +86,21 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
   abstract Predicate toCriteriaPredicate(
       Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder);
 
-  protected Path<P> getPath(final Root<T> root) {
-    return getPath(root, joinType);
-  }
-
   @SuppressWarnings("unchecked")
-  protected Path<P> getPath(final Root<T> root, final JoinType joinType) {
+  protected Path<P> getPath(final Root<T> root) {
     Path<P> path = null;
     From<?, ?> from = root;
     Class<?> javaType = root.getJavaType();
 
     for (final String column : columns) {
       if (isObjectAssociation(column, javaType)) {
-        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
-
-        from = joinOpt.isPresent() ? joinOpt.get() : joinFetch(from, column, joinType);
+        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column);
+        from = joinOpt.isPresent() ? joinOpt.get() : joinFetch(from, column);
         javaType = from.getJavaType();
 
       } else if (isElementCollection(column, javaType)) {
-        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column, joinType);
-        path = joinOpt.isPresent() ? (Path<P>) joinOpt.get() : from.join(column, joinType);
+        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column);
+        path = joinOpt.isPresent() ? (Path<P>) joinOpt.get() : from.join(column);
         break;
       } else {
         path = from.get(column);
@@ -137,16 +132,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     return field != null && field.isAnnotationPresent(ElementCollection.class);
   }
 
-  protected Join<?, ?> joinFetch(final From<?, ?> from, final String column, final JoinType type) {
-    if (isFetch) {
-      return (Join<?, ?>) from.fetch(column, type);
-    } else {
-      return from.join(column, type);
-    }
-  }
-
-  private Optional<Join<?, ?>> getJoin(
-      final Set<? extends Join<?, ?>> joins, final String column, final JoinType joinType) {
+  private Optional<Join<?, ?>> getJoin(final Set<? extends Join<?, ?>> joins, final String column) {
     final Optional<Join<?, ?>> result = Optional.empty();
     if (joins.isEmpty()) return result;
 
@@ -158,13 +144,21 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
           return Optional.of(join);
         }
       }
-      final Optional<Join<?, ?>> resultJoin = getJoin(join.getJoins(), column, joinType);
+      final Optional<Join<?, ?>> resultJoin = getJoin(join.getJoins(), column);
       if (resultJoin.isPresent()) {
         return resultJoin;
       }
     }
 
     return result;
+  }
+
+  private Join<?, ?> joinFetch(final From<?, ?> from, final String column) {
+    if (isFetch) {
+      return (Join<?, ?>) from.fetch(column, joinType);
+    } else {
+      return from.join(column, joinType);
+    }
   }
 
   /**
