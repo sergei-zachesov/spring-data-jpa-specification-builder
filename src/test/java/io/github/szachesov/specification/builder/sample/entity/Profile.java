@@ -17,12 +17,17 @@
 
 package io.github.szachesov.specification.builder.sample.entity;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
+@ToString
 @Entity
 @Table(name = "profiles")
 public class Profile extends BaseEntity {

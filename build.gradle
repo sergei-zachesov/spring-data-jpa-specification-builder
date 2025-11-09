@@ -42,6 +42,7 @@ dependencies {
     testRuntimeOnly 'org.postgresql:postgresql:42.7.8'
     testCompileOnly "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
     testAnnotationProcessor "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
+    testImplementation 'com.cosium.spring.data:spring-data-jpa-entity-graph:3.5.0'
 }
 
 test {

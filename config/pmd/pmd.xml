@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
     <description>PMD configuration</description>
 
-    <!-- https://pmd.github.io/-->
+    <!-- https://pmd.github.io -->
 
     <rule ref="category/java/bestpractices.xml">
         <exclude name="UnitTestContainsTooManyAsserts"/>
@@ -69,11 +69,21 @@
 
     <rule ref="category/java/codestyle.xml/ShortClassName">
         <properties>
-            <property name="minimum" value="4"/>
+            <property name="minimum" value="3"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/UseExplicitTypes">
+        <properties>
+            <property name="allowLiterals" value="true"/>
+            <property name="allowCtors" value="true"/>
+            <property name="allowCasts" value="true"/>
+            <property name="allowLoopVariable" value="true"/>
         </properties>
     </rule>
 
     <rule ref="category/java/design.xml">
+        <exclude name="GodClass"/> <!-- situation-->
         <exclude name="LawOfDemeter"/>
         <exclude name="LoosePackageCoupling"/>
         <exclude name="AvoidCatchingGenericException"/>

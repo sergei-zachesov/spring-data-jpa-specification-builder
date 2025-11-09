@@ -24,6 +24,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Fetch;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -79,7 +80,6 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     if (query != null) {
       query.distinct(distinct);
     }
-
     return toCriteriaPredicate(root, query, criteriaBuilder);
   }
 
@@ -123,9 +123,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     final Field[] fields = javaType.getDeclaredFields();
     final Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
-    if (field == null) {
-      return false;
-    }
+    if (field == null) return false;
     return field.isAnnotationPresent(OneToOne.class)
         || field.isAnnotationPresent(ManyToOne.class)
         || field.isAnnotationPresent(OneToMany.class)
@@ -136,9 +134,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     final Field[] fields = javaType.getDeclaredFields();
     final Field field =
         Arrays.stream(fields).filter(f -> f.getName().equals(column)).findFirst().orElse(null);
-    if (field == null) return false;
-
-    return field.isAnnotationPresent(ElementCollection.class);
+    return field != null && field.isAnnotationPresent(ElementCollection.class);
   }
 
   protected Join<?, ?> joinFetch(final From<?, ?> from, final String column, final JoinType type) {
@@ -151,11 +147,9 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
   private Optional<Join<?, ?>> getJoin(
       final Set<? extends Join<?, ?>> joins, final String column, final JoinType joinType) {
-    if (joins == null || joins.isEmpty()) {
-      return Optional.empty();
-    }
-
     final Optional<Join<?, ?>> result = Optional.empty();
+    if (joins.isEmpty()) return result;
+
     for (final Join<?, ?> join : joins) {
       if (join.getAttribute().getName().equals(column)) {
         if (join.getJoinType().equals(joinType)) {
@@ -173,7 +167,12 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
     return result;
   }
 
-  abstract static class Builder<BuilderT extends Builder<BuilderT>> {
+  /**
+   * Common abstract builder for {@link CompositeSpecification}.
+   *
+   * @param <BuilderT> the concrete builder class type.
+   */
+  public abstract static class Builder<BuilderT extends Builder<BuilderT>> {
 
     protected final List<String> columns;
     private BooleanOperator connection = BooleanOperator.AND;
@@ -185,21 +184,33 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
       this.columns = columns;
     }
 
+    /**
+     * Sets the logical operator for combining multiple filter conditions.
+     *
+     * @param connection boolean operator to use for connecting conditions (AND/OR)
+     */
     public BuilderT connection(final BooleanOperator connection) {
       this.connection = connection;
       return self();
     }
 
+    /**
+     * Sets the type of join to be used when fetching associated entities.
+     *
+     * @param joinType the type of join to use {@link JoinType}
+     */
     public BuilderT join(final JoinType joinType) {
       this.joinType = joinType;
       return self();
     }
 
+    /** Enables fetch join({@link Fetch}). */
     public BuilderT fetch() {
       this.isFetch = true;
       return self();
     }
 
+    /** Adds NOT to the condition. */
     public BuilderT not() {
       this.isNot = true;
       return self();

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -37,6 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class SpecificationBuilder<T> {
 
   private final List<CompositeSpecification<T, ?>> specifications = new ArrayList<>();
+  private final List<InnerSpecification<T>> innerSpecifications = new ArrayList<>();
   private boolean distinct = true;
 
   /**
@@ -53,17 +55,44 @@ public class SpecificationBuilder<T> {
     return this;
   }
 
-  // inner predicate
+  /**
+   * Logical operations AND grouped with parentheses.
+   *
+   * <p>Example: {@code ... AND (column_1 = 1 AND column_2 = 2) AND...}
+   *
+   * @param spec specification representing grouped logical predicates.
+   */
+  public SpecificationBuilder<T> andInner(final Specification<T> spec) {
+    final InnerSpecification<T> inner = new InnerSpecification<>(spec, BooleanOperator.AND);
+    innerSpecifications.add(inner);
+    return this;
+  }
 
   /**
-   * Logical operations grouped with parentheses.
+   * Logical operations OR grouped with parentheses.
    *
    * <p>Example: {@code ... OR (column_1 = 1 AND column_2 = 2) AND...}
    *
    * @param spec specification representing grouped logical predicates.
    */
-  public SpecificationBuilder<T> inner(final CompositeSpecification<T, ?> spec) {
-    specifications.add(spec);
+  public SpecificationBuilder<T> orInner(final Specification<T> spec) {
+    final InnerSpecification<T> inner = new InnerSpecification<>(spec, BooleanOperator.OR);
+    innerSpecifications.add(inner);
+    return this;
+  }
+
+  /**
+   * Logical operations grouped with parentheses.
+   *
+   * <p>Example: {@code ... OR/AND (column_1 = 1 AND column_2 = 2) AND...}
+   *
+   * @param spec specification representing grouped logical predicates.
+   * @param operator logical of the condition connection.
+   */
+  public SpecificationBuilder<T> inner(
+      final Specification<T> spec, final BooleanOperator operator) {
+    final InnerSpecification<T> inner = new InnerSpecification<>(spec, operator);
+    innerSpecifications.add(inner);
     return this;
   }
 
@@ -256,7 +285,7 @@ public class SpecificationBuilder<T> {
       final List<String> columns,
       final String value,
       final Function<LikeSpecification.Builder<T>, ObjectBuilder<LikeSpecification<T>>> fn) {
-    if (value == null || value.isEmpty()) return this;
+    if (value == null || value.isBlank()) return this;
 
     final LikeSpecification<T> spec =
         fn.apply(new LikeSpecification.Builder<>(columns, value)).build();
@@ -271,6 +300,178 @@ public class SpecificationBuilder<T> {
   }
 
   // Comparison: BETWEEN, >, <, >=, <=
+
+  /**
+   * Minimum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column > '2012-01-31' ...}
+   *   <li>{@code ... WHERE column >= 2 ...}
+   * </ul>
+   *
+   * @param column column name.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> min(
+      final String column, final P min) {
+    return between(column, min, null, BetweenSpecification.Builder::self);
+  }
+
+  /**
+   * Minimum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column > '2012-01-31' ...}
+   *   <li>{@code ... WHERE column >= 2 ...}
+   * </ul>
+   *
+   * @param column column name.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> min(
+      final String column,
+      final P min,
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
+          fn) {
+    return between(column, min, null, fn);
+  }
+
+  /**
+   * Minimum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column > '2012-01-31' ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column >= 2 ...}
+   * </ul>
+   *
+   * @param columns join column names are listed before the target one.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> min(
+      final List<String> columns, final P min) {
+    return between(columns, min, null, BetweenSpecification.Builder::self);
+  }
+
+  /**
+   * Minimum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column > '2012-01-31' ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column >= 2 ...}
+   * </ul>
+   *
+   * @param columns join column names are listed before the target one.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> min(
+      final List<String> columns,
+      final P min,
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
+          fn) {
+    return between(columns, min, null, fn);
+  }
+
+  /**
+   * Maximum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column < 50000.00 ...}
+   *   <li>{@code ... WHERE column <= 0.05 ...}
+   * </ul>
+   *
+   * @param column column name.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> max(
+      final String column, final P max) {
+    return between(column, null, max, ComparisonSpecification.Builder::self);
+  }
+
+  /**
+   * Maximum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column < 50000.00 ...}
+   *   <li>{@code ... WHERE column <= 0.05 ...}
+   * </ul>
+   *
+   * @param column column name.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> max(
+      final String column,
+      final P max,
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
+          fn) {
+    return between(column, null, max, fn);
+  }
+
+  /**
+   * Maximum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column < 50000.00 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column <= 0.05 ...}
+   * </ul>
+   *
+   * @param column column name.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> max(
+      final List<String> column, final P max) {
+    return between(column, null, max, ComparisonSpecification.Builder::self);
+  }
+
+  /**
+   * Maximum allowed value.
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column < 50000.00 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column <= 0.05 ...}
+   * </ul>
+   *
+   * @param columns join column names are listed before the target one.
+   * @param fn function of the builder of min and max values, additional predicate parameters.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> max(
+      final List<String> columns,
+      final P max,
+      final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
+          fn) {
+    return between(columns, null, max, fn);
+  }
+
+  /**
+   * Between the range, the extreme values can be infinite({@code null}).
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... WHERE column > '2012-01-31' ...}
+   *   <li>{@code ... WHERE column < 50000.00 ...}
+   *   <li>{@code ... WHERE column >= 2 ...}
+   *   <li>{@code ... WHERE column <= 0.05 ...}
+   *   <li>{@code ... WHERE column BETWEEN 100.00 AND 500.00 ...}
+   * </ul>
+   *
+   * @param column column name.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
+      final String column, @Nullable final P min, @Nullable final P max) {
+    return between(splitColumn(column), min, max, ComparisonSpecification.Builder::self);
+  }
 
   /**
    * Between the range, the extreme values can be infinite({@code null}).
@@ -290,9 +491,32 @@ public class SpecificationBuilder<T> {
    */
   public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
       final String column,
+      @Nullable final P min,
+      @Nullable final P max,
       final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
           fn) {
-    return between(splitColumn(column), fn);
+    return between(splitColumn(column), min, max, fn);
+  }
+
+  /**
+   * Between the range, the extreme values can be infinite({@code null}).
+   *
+   * <p>Examples:
+   *
+   * <ul>
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column > '2012-01-31' ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column < 50000.00 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column >= 2 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column <= 0.05 ...}
+   *   <li>{@code ... LEFT JOIN table_join ... WHERE table_join.column BETWEEN 100.00 AND 500.00
+   *       ...}
+   * </ul>
+   *
+   * @param columns join column names are listed before the target one.
+   */
+  public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
+      final List<String> columns, @Nullable final P min, @Nullable final P max) {
+    return between(columns, min, max, ComparisonSpecification.Builder::self);
   }
 
   /**
@@ -314,13 +538,14 @@ public class SpecificationBuilder<T> {
    */
   public <P extends Comparable<? super P>> SpecificationBuilder<T> between(
       final List<String> columns,
+      @Nullable final P min,
+      @Nullable final P max,
       final Function<ComparisonSpecification.Builder<T, P>, ComparisonSpecification.Builder<T, P>>
           fn) {
     final ComparisonSpecification.Builder<T, P> builder =
-        fn.apply(new ComparisonSpecification.Builder<>(columns));
+        fn.apply(new ComparisonSpecification.Builder<>(columns, min, max));
 
     if (builder.isEmptyValues()) return this;
-
     specifications.addAll(builder.build());
 
     return this;
@@ -335,6 +560,17 @@ public class SpecificationBuilder<T> {
    */
   public SpecificationBuilder<T> isNotNull(final String column) {
     return isNull(column, true, CompositeSpecification.Builder::not);
+  }
+
+  /**
+   * Compare to not null.
+   *
+   * <p>Examples: {@code ... LEFT JOIN table_join ... WHERE table_join.column IS NOT NULL ...}
+   *
+   * @param columns join column names are listed before the target one.
+   */
+  public SpecificationBuilder<T> isNotNull(final List<String> columns) {
+    return isNull(columns, true, CompositeSpecification.Builder::not);
   }
 
   /**
@@ -428,19 +664,19 @@ public class SpecificationBuilder<T> {
 
   /** Builds a {@link Specification}. */
   public Specification<T> build() {
-    if (specifications.isEmpty()) {
-      return null;
-    }
+    if (specifications.isEmpty() && innerSpecifications.isEmpty()) return null;
 
-    if (!distinct) {
-      specifications.forEach(s -> s.setDistinct(distinct));
+    Specification<T> result = Specification.unrestricted();
+    for (final CompositeSpecification<T, ?> spec : specifications) {
+      spec.setDistinct(distinct);
+      result = spec.connection.connect(result, spec);
     }
-
-    Specification<T> result = specifications.getFirst();
-    for (int i = 1; i < specifications.size(); i++) {
-      result = specifications.get(i).connection.connect(result, specifications.get(i));
+    for (final InnerSpecification<T> inner : innerSpecifications) {
+      result = inner.operator.connect(result, inner.spec);
     }
 
     return result;
   }
+
+  private record InnerSpecification<T>(Specification<T> spec, BooleanOperator operator) {}
 }

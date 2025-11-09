@@ -85,8 +85,8 @@ public class LikeSpecification<T> extends CompositeSpecification<T, String> {
     }
 
     /** Case-insensitive comparison. */
-    public Builder<T> ignoreCase() {
-      this.isIgnoreCase = true;
+    public Builder<T> noIgnoreCase() {
+      this.isIgnoreCase = false;
       return this;
     }
 

@@ -15,14 +15,23 @@
  * limitations under the License.
  */
 
-package io.github.szachesov.specification.builder;
+package io.github.szachesov.specification.builder.sample.entity;
 
-import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@EnableJpaRepositories(repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
-@EnableAutoConfiguration
-@SpringBootConfiguration
-public class TestConfiguration {}
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
+@Entity
+@Table(name = "tags")
+public class Tag extends BaseEntity {
+  @Column(name = "name", nullable = false, unique = true)
+  private String name;
+}

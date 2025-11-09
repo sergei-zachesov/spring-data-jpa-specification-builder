@@ -17,13 +17,32 @@
 
 package io.github.szachesov.specification.builder.sample.entity;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Setter
+@Getter
 @Entity
 @Table(name = "posts")
 public class Post extends BaseEntity {
@@ -32,9 +51,23 @@ public class Post extends BaseEntity {
 
   private String content;
 
+  @Column(name = "created_at")
   private LocalDateTime createdAt;
+
+  private BigDecimal rating;
+
+  @Column(name = "word_count")
+  private Integer wordCount;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author_id")
+  @ToString.Exclude
   private User author;
+
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"))
+  @Column(name = "tag")
+  @ToString.Exclude
+  @Builder.Default
+  private Set<String> tags = new HashSet<>();
 }

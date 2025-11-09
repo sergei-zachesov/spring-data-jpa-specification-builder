@@ -19,25 +19,26 @@ package io.github.szachesov.specification.builder.sample.repository;
 
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository;
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor;
-import io.github.szachesov.specification.builder.sample.entity.User;
-import io.github.szachesov.specification.builder.sample.entity.User_;
-import jakarta.annotation.Nonnull;
+import io.github.szachesov.specification.builder.sample.entity.Post;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 
-public interface UserRepository
-    extends EntityGraphJpaRepository<User, Integer>, EntityGraphJpaSpecificationExecutor<User> {
+public interface PostRepository
+    extends EntityGraphJpaRepository<Post, Integer>, EntityGraphJpaSpecificationExecutor<Post> {
 
-  @EntityGraph(attributePaths = User_.PROFILE)
-  @Nonnull
-  @Override
-  List<User> findAll(@Nullable Specification<User> spec);
-
-  @EntityGraph(attributePaths = User_.PROFILE)
-  @Nonnull
-  @Override
-  List<User> findAll(@Nullable Specification<User> spec, @Nonnull Sort sort);
+  @Query(
+      nativeQuery = true,
+      value =
+          """
+                   select distinct
+                   p1_0.id,
+                   p1_0.author_id,
+                   p1_0.content,
+                   p1_0.created_at,
+                   p1_0.rating,
+                   p1_0.title,
+                   p1_0.word_count
+                   from posts p1_0 where p1_0.rating>1
+                  """)
+  List<Post> test();
 }

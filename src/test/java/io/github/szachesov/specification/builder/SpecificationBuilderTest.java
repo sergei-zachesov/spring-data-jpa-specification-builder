@@ -17,67 +17,39 @@
 
 package io.github.szachesov.specification.builder;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import io.github.szachesov.specification.builder.sample.entity.Group;
-import io.github.szachesov.specification.builder.sample.entity.Group_;
 import io.github.szachesov.specification.builder.sample.repository.GroupRepository;
-import io.github.szachesov.specification.builder.testutils.TestConstants;
+import io.github.szachesov.specification.builder.sample.repository.PostRepository;
+import io.github.szachesov.specification.builder.sample.repository.TagRepository;
+import io.github.szachesov.specification.builder.sample.repository.UserRepository;
 import io.github.szachesov.specification.builder.testutils.TestData;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @DataJpaTest
+@Transactional(propagation = Propagation.NEVER)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SpecificationBuilderTest {
+abstract class SpecificationBuilderTest {
 
-  @Autowired private GroupRepository groupRepository;
+  @Autowired protected GroupRepository groupRepository;
+  @Autowired protected UserRepository userRepository;
+  @Autowired protected PostRepository postRepository;
 
   @BeforeAll
-  static void init(@Autowired final GroupRepository groupRepository) {
-    groupRepository.saveAll(TestData.croupsAll());
-  }
+  static void init(
+      @Autowired final GroupRepository groupRepository,
+      @Autowired final UserRepository userRepository,
+      @Autowired final PostRepository postRepository,
+      @Autowired final TagRepository tagRepository) {
 
-  @Test
-  void equal_getEntity_byVarchar() {
-    final String groupName = TestConstants.GROUP_USER;
-    final Specification<Group> spec =
-        SpecificationBuilder.<Group>builder().equal(Group_.NAME, groupName).build();
-
-    final List<Group> entities = groupRepository.findAll(spec);
-
-    assertThat(entities).hasSize(1);
-    assertThat(entities.getFirst().getName()).isEqualTo(groupName);
-  }
-
-  @Test
-  void equal_notFound_byVarchar() {
-    final Specification<Group> spec =
-        SpecificationBuilder.<Group>builder().equal(Group_.NAME, "Unknown").build();
-
-    final List<Group> entities = groupRepository.findAll(spec);
-
-    assertThat(entities).hasSize(0);
-  }
-
-  @Test
-  void equal_getOtherEntity_byNotVarchar() {
-    final String groupName = TestConstants.GROUP_USER;
-    final Specification<Group> spec =
-        SpecificationBuilder.<Group>builder()
-            .equal(Group_.NAME, groupName, CompositeSpecification.Builder::not)
-            .build();
-
-    final List<Group> entities = groupRepository.findAll(spec);
-
-    final List<String> names = entities.stream().map(Group::getName).toList();
-    assertThat(names).doesNotContain(groupName);
+    groupRepository.saveAll(TestData.GROUPS);
+    tagRepository.saveAll(TestData.TAGS);
+    userRepository.saveAll(TestData.USERS);
+    postRepository.saveAll(TestData.POSTS);
   }
 }

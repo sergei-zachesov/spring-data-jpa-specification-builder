@@ -43,7 +43,7 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
 
   protected ComparisonSpecification(final Builder<T, P> builder) {
     super(builder);
-    this.range = new Range<>(builder.max, builder.max);
+    this.range = new Range<>(builder.min, builder.max);
   }
 
   @Override
@@ -65,25 +65,15 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
       extends CompositeSpecification.Builder<Builder<T, P>>
       implements ObjectBuilder<List<ComparisonSpecification<T, P>>> {
 
-    private P min;
-    private P max;
+    private final P min;
+    private final P max;
     private Bound minBound = Bound.INCLUSIVE;
     private Bound maxBound = Bound.INCLUSIVE;
 
-    Builder(final List<String> columns) {
+    Builder(final List<String> columns, final P min, final P max) {
       super(columns);
-    }
-
-    /** Minimum value for comparison. */
-    public Builder<T, P> min(final P min) {
       this.min = min;
-      return self();
-    }
-
-    /** Maximum value for comparison. */
-    public Builder<T, P> max(final P max) {
       this.max = max;
-      return self();
     }
 
     /** The type of the minimum value boundary. */
@@ -105,11 +95,6 @@ public abstract class ComparisonSpecification<T, P extends Comparable<? super P>
 
     @Override
     public List<ComparisonSpecification<T, P>> build() {
-      if (isEmptyValues()) {
-        throw new IllegalArgumentException(
-            "One or both of the MIN or MAX parameters must not be null.");
-      }
-
       if (isBetween()) {
         return List.of(new BetweenSpecification<>(this));
       }

@@ -17,20 +17,22 @@
 
 package io.github.szachesov.specification.builder;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 /** Enumeration of boolean operators for combining specifications. */
+@AllArgsConstructor
 public enum BooleanOperator {
   AND {
     @Override
     <T> Specification<T> connect(final Specification<T> spec, final Specification<T> connect) {
-      return Specification.where(spec).and(connect);
+      return spec.and(connect);
     }
   },
   OR {
     @Override
     <T> Specification<T> connect(final Specification<T> spec, final Specification<T> connect) {
-      return Specification.where(spec).or(connect);
+      return spec.or(connect);
     }
   };
 

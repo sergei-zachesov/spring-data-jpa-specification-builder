@@ -88,7 +88,7 @@ public class InequalitySpecification<T, P extends Comparable<? super P>>
       @Override
       <P extends Comparable<? super P>> Predicate toPredicate(
           final CriteriaBuilder builder, final Path<P> path, final Range<P> range) {
-        return builder.greaterThanOrEqualTo(path, range.max());
+        return builder.greaterThanOrEqualTo(path, range.min());
       }
     },
     LT("less than", "<") {

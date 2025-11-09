@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-package io.github.szachesov.specification.builder;
+package io.github.szachesov.specification.builder.testutils;
 
-import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import lombok.experimental.UtilityClass;
 
-@EnableJpaRepositories(repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
-@EnableAutoConfiguration
-@SpringBootConfiguration
-public class TestConfiguration {}
+@UtilityClass
+public class DbUtils {
+
+  public static String joinPath(final String... attributes) {
+    if (attributes.length == 1) return attributes[0];
+    return String.join(".", attributes);
+  }
+}

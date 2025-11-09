@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-package io.github.szachesov.specification.builder;
+package io.github.szachesov.specification.builder.sample.repository;
 
-import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository;
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor;
+import io.github.szachesov.specification.builder.sample.entity.Tag;
 
-@EnableJpaRepositories(repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
-@EnableAutoConfiguration
-@SpringBootConfiguration
-public class TestConfiguration {}
+public interface TagRepository
+    extends EntityGraphJpaRepository<Tag, Integer>, EntityGraphJpaSpecificationExecutor<Tag> {}
