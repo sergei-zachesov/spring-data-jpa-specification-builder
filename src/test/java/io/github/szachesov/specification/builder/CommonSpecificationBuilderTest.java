@@ -188,6 +188,25 @@ class CommonSpecificationBuilderTest extends SpecificationBuilderTest {
   }
 
   @Test
+  void equal_getResult_byJoinCollectionField() {
+    final String value = TestConstants.TECH_NAME_TAG;
+    final Specification<User> spec =
+        SpecificationBuilder.<User>builder().equal(List.of(User_.POSTS, Post_.TAGS), value).build();
+
+    final EntityGraph eg =
+        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(User_.POSTS, Post_.TAGS)));
+    final List<User> entities = userRepository.findAll(spec, eg);
+
+    assertThat(entities)
+        .isNotEmpty()
+        .allSatisfy(
+            e ->
+                assertThat(e.getPosts())
+                    .flatExtracting(Post::getTags)
+                    .anySatisfy(t -> assertThat(t).isEqualTo(value)));
+  }
+
+  @Test
   void equal_getResult_byJoinAndLeftJoin() {
     final String group = TestConstants.USER_NAME_GROUP;
     final String phone = TestData.USER_1.getPhone();

@@ -99,8 +99,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
         javaType = from.getJavaType();
 
       } else if (isElementCollection(column, javaType)) {
-        final Optional<Join<?, ?>> joinOpt = getJoin(root.getJoins(), column);
-        path = joinOpt.isPresent() ? (Path<P>) joinOpt.get() : from.join(column);
+        path = from.join(column);
         break;
       } else {
         path = from.get(column);
@@ -138,11 +137,7 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
 
     for (final Join<?, ?> join : joins) {
       if (join.getAttribute().getName().equals(column)) {
-        if (join.getJoinType().equals(joinType)) {
-          return Optional.of(join);
-        } else if (join.getJoinType() == JoinType.LEFT && joinType == JoinType.INNER) {
-          return Optional.of(join);
-        }
+        return Optional.of(join);
       }
       final Optional<Join<?, ?>> resultJoin = getJoin(join.getJoins(), column);
       if (resultJoin.isPresent()) {
