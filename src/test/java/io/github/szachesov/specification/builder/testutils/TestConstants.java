@@ -35,6 +35,8 @@ public class TestConstants {
   public static final String ADMIN_USERNAME = "admin@admin.com";
   public static final String ADMIN_PHONE = "+79777777777";
 
+  public static final String USER_1_BIO = "Интересный человек";
+
   public static final String TITLE_POST_1_USER_1 = "Супер пост!";
   public static final String CONTENT_POST_1_USER_1 =
       "Очень интересный контент, об интересных постах. Читайте внимательно!";

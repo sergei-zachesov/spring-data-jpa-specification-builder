@@ -33,6 +33,7 @@ import io.github.szachesov.specification.builder.testutils.TestConstants;
 import io.github.szachesov.specification.builder.testutils.TestData;
 import jakarta.persistence.criteria.JoinType;
 import java.util.List;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Sort;
@@ -194,7 +195,8 @@ class CommonSpecificationBuilderTest extends SpecificationBuilderTest {
         SpecificationBuilder.<User>builder().equal(List.of(User_.POSTS, Post_.TAGS), value).build();
 
     final EntityGraph eg =
-        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(User_.POSTS, Post_.TAGS)));
+        DynamicEntityGraph.loading(
+            List.of(DbUtils.joinPath(User_.POSTS, Post_.TAGS), User_.PROFILE));
     final List<User> entities = userRepository.findAll(spec, eg);
 
     assertThat(entities)
@@ -231,5 +233,48 @@ class CommonSpecificationBuilderTest extends SpecificationBuilderTest {
               assertThat(user.getGroups()).extracting(Group::getName).containsAnyOf(group);
               assertThat(user.getPhone()).isEqualTo(phone);
             });
+  }
+
+  @Test
+  void equal_getResult_byFetch() {
+    final String phone = TestData.USER_1.getPhone();
+    final Specification<Post> spec =
+        SpecificationBuilder.<Post>builder()
+            .equal(List.of(Post_.AUTHOR, User_.PHONE), phone, CompositeSpecification.Builder::fetch)
+            .build();
+
+    final EntityGraph eg =
+        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(Post_.AUTHOR, User_.PROFILE)));
+    final List<Post> entities = postRepository.findAll(spec, eg);
+
+    assertThat(entities)
+        .isNotEmpty()
+        .extracting(Post::getAuthor)
+        .allSatisfy(user -> assertThat(Hibernate.isInitialized(user)).isEqualTo(true));
+  }
+
+  @Test
+  void equal_getResult_byFetchToMany() {
+    final Specification<User> spec =
+        SpecificationBuilder.<User>builder()
+            .isNull(List.of(User_.POSTS, Post_.TITLE), true, b -> b.not().fetch())
+            .build();
+
+    final List<User> entities = userRepository.findAll(spec);
+
+    assertThat(entities)
+        .isNotEmpty()
+        .extracting(User::getPosts)
+        .allSatisfy(p -> assertThat(Hibernate.isInitialized(p)).isEqualTo(true));
+  }
+
+  @Test
+  void isNotNull_getResult_byOneToOne() {
+    final Specification<User> spec =
+        SpecificationBuilder.<User>builder().isNotNull(List.of(User_.PROFILE)).build();
+
+    final List<User> entities = userRepository.findAll(spec);
+
+    assertThat(entities).isNotEmpty().extracting(User::getProfile).isNotEmpty();
   }
 }

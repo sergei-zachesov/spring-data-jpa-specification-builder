@@ -139,10 +139,6 @@ public abstract class CompositeSpecification<T, P> implements Specification<T> {
       if (join.getAttribute().getName().equals(column)) {
         return Optional.of(join);
       }
-      final Optional<Join<?, ?>> resultJoin = getJoin(join.getJoins(), column);
-      if (resultJoin.isPresent()) {
-        return resultJoin;
-      }
     }
 
     return result;

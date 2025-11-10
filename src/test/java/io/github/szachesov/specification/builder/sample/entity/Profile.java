@@ -22,9 +22,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@NoArgsConstructor
 @Setter
 @Getter
 @ToString
@@ -37,4 +39,10 @@ public class Profile extends BaseEntity {
   @OneToOne
   @JoinColumn(name = "user_id")
   private User user;
+
+  public Profile(final String bio, final User user) {
+    this.bio = bio;
+    this.user = user;
+    user.setProfile(this);
+  }
 }

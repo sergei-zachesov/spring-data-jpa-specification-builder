@@ -25,6 +25,7 @@ import io.github.szachesov.specification.builder.sample.entity.Post;
 import io.github.szachesov.specification.builder.sample.entity.Post_;
 import io.github.szachesov.specification.builder.sample.entity.User;
 import io.github.szachesov.specification.builder.sample.entity.User_;
+import io.github.szachesov.specification.builder.testutils.DbUtils;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.domain.Specification;
@@ -88,7 +89,8 @@ class IsNullSpecificationBuilderTest extends SpecificationBuilderTest {
     final Specification<Post> spec =
         SpecificationBuilder.<Post>builder().isNull(List.of(Post_.AUTHOR, User_.PHONE)).build();
 
-    final EntityGraph eg = DynamicEntityGraph.loading(List.of(Post_.AUTHOR));
+    final EntityGraph eg =
+        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(Post_.AUTHOR, User_.PROFILE)));
     final List<Post> entities = postRepository.findAll(spec, eg);
 
     assertThat(entities)

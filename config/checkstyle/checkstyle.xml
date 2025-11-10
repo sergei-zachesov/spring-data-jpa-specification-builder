@@ -601,4 +601,9 @@
         <property name="checks" value="MissingJavadocMethod"/>
     </module>
 
+    <module name="SuppressionSingleFilter">
+        <property name="files" value=".*[\\/]src[\\/]test[\\/]"/>
+        <property name="checks" value="ParameterNumber"/>
+    </module>
+
 </module>

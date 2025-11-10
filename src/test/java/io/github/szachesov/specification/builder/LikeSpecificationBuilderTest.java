@@ -27,6 +27,7 @@ import io.github.szachesov.specification.builder.sample.entity.Post;
 import io.github.szachesov.specification.builder.sample.entity.Post_;
 import io.github.szachesov.specification.builder.sample.entity.User;
 import io.github.szachesov.specification.builder.sample.entity.User_;
+import io.github.szachesov.specification.builder.testutils.DbUtils;
 import io.github.szachesov.specification.builder.testutils.TestConstants;
 import io.github.szachesov.specification.builder.testutils.TestData;
 import java.util.List;
@@ -142,7 +143,8 @@ class LikeSpecificationBuilderTest extends SpecificationBuilderTest {
             .like(List.of(Post_.AUTHOR, User_.USERNAME), value)
             .build();
 
-    final EntityGraph eg = DynamicEntityGraph.loading(List.of(Post_.AUTHOR));
+    final EntityGraph eg =
+        DynamicEntityGraph.loading(List.of(DbUtils.joinPath(Post_.AUTHOR, User_.PROFILE)));
     final List<Post> entities = postRepository.findAll(spec, eg);
 
     assertThat(entities)

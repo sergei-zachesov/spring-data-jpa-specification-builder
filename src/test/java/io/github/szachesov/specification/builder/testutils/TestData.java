@@ -19,6 +19,7 @@ package io.github.szachesov.specification.builder.testutils;
 
 import io.github.szachesov.specification.builder.sample.entity.Group;
 import io.github.szachesov.specification.builder.sample.entity.Post;
+import io.github.szachesov.specification.builder.sample.entity.Profile;
 import io.github.szachesov.specification.builder.sample.entity.Tag;
 import io.github.szachesov.specification.builder.sample.entity.User;
 import java.time.LocalDate;
@@ -46,6 +47,7 @@ public class TestData {
           .phone(TestConstants.ADMIN_PHONE)
           .groups(List.of(ADMIN_GROUP, USER_GROUP))
           .build();
+
   public static final User USER_1 =
       User.builder()
           .username(TestConstants.USER_1_USERNAME)
@@ -54,6 +56,7 @@ public class TestData {
           .phone(TestConstants.USER_1_PHONE)
           .groups(List.of(USER_GROUP))
           .build();
+
   public static final User USER_2 =
       User.builder()
           .username(TestConstants.USER_2_USERNAME)
@@ -63,6 +66,8 @@ public class TestData {
           .registrationDate(TestConstants.USER_2_REGISTRATION_DATE)
           .build();
   public static final List<User> USERS = List.of(ADMIN_USER, USER_1, USER_2);
+
+  public static final Profile PROFILE_USER_1 = new Profile(TestConstants.USER_1_BIO, USER_1);
 
   public static final Post POST_1_USER_1 =
       Post.builder()

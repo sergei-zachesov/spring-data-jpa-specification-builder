@@ -20,25 +20,6 @@ package io.github.szachesov.specification.builder.sample.repository;
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository;
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor;
 import io.github.szachesov.specification.builder.sample.entity.Post;
-import java.util.List;
-import org.springframework.data.jpa.repository.Query;
 
 public interface PostRepository
-    extends EntityGraphJpaRepository<Post, Integer>, EntityGraphJpaSpecificationExecutor<Post> {
-
-  @Query(
-      nativeQuery = true,
-      value =
-          """
-                   select distinct
-                   p1_0.id,
-                   p1_0.author_id,
-                   p1_0.content,
-                   p1_0.created_at,
-                   p1_0.rating,
-                   p1_0.title,
-                   p1_0.word_count
-                   from posts p1_0 where p1_0.rating>1
-                  """)
-  List<Post> test();
-}
+    extends EntityGraphJpaRepository<Post, Integer>, EntityGraphJpaSpecificationExecutor<Post> {}
