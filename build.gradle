@@ -1,6 +1,9 @@
 import com.github.spotbugs.snom.Effort
 
+import java.time.Year
+
 plugins {
+    id 'maven-publish'
     id 'java'
     id 'checkstyle'
     id 'pmd'
@@ -8,10 +11,55 @@ plugins {
     id 'com.github.spotbugs' version '6.4.4'
     id "dev.yumi.gradle.licenser" version "2.1.1"
     id "com.github.ben-manes.versions" version "0.53.0"
+    id "org.jreleaser" version "1.20.0"
 }
 
-group = 'io.github.szachesov'
+group = 'io.github.sgzachesov'
 version = '3.5.0'
+
+publishing {
+    repositories {
+        maven {
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+jreleaser {
+    project {
+        inceptionYear = Year.now().getValue().toString()
+        author("Sergei Zachesov")
+    }
+    release {
+        github {
+            skipRelease = true
+            skipTag = true
+        }
+    }
+    signing {
+        active = 'ALWAYS'
+        armored = true
+        verify = true
+    }
+    deploy {
+        maven {
+            mavenCentral.create("sonatype") {
+                active = 'ALWAYS'
+                url = "https://central.sonatype.com/api/v1/publisher"
+                stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+                setAuthorization("Basic")
+                retryDelay = 60
+            }
+        }
+    }
+}
+
 
 repositories {
     mavenCentral()
@@ -21,6 +69,8 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 ext {
@@ -166,3 +216,6 @@ jacocoTestCoverageVerification {
 }
 
 
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}

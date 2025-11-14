@@ -27,7 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * Predicate of inequality(>, <, >=, <=).
+ * Predicate of inequality (&gt;, &lt;, &ge;, &le;).
  *
  * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
  * @param <P> target predicate type, maybe {@link Join}
