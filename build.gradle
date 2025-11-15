@@ -1,9 +1,6 @@
 import com.github.spotbugs.snom.Effort
 
-import java.time.Year
-
 plugins {
-    id 'maven-publish'
     id 'java'
     id 'checkstyle'
     id 'pmd'
@@ -11,55 +8,52 @@ plugins {
     id 'com.github.spotbugs' version '6.4.4'
     id "dev.yumi.gradle.licenser" version "2.1.1"
     id "com.github.ben-manes.versions" version "0.53.0"
-    id "org.jreleaser" version "1.20.0"
+    id 'maven-publish'
+    id "com.vanniktech.maven.publish" version "0.35.0"
+    id 'signing'
 }
 
 group = 'io.github.sgzachesov'
-version = '3.5.0'
+version = '3.5.1'
+description = "spring-data-jpa-specification-builder is an auxiliary library for building the Spring Specification."
 
-publishing {
-    repositories {
-        maven {
-            setUrl(layout.buildDirectory.dir("staging-deploy"))
-        }
-    }
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
-
-jreleaser {
-    project {
-        inceptionYear = Year.now().getValue().toString()
-        author("Sergei Zachesov")
-    }
-    release {
-        github {
-            skipRelease = true
-            skipTag = true
-        }
-    }
-    signing {
-        active = 'ALWAYS'
-        armored = true
-        verify = true
-    }
-    deploy {
-        maven {
-            mavenCentral.create("sonatype") {
-                active = 'ALWAYS'
-                url = "https://central.sonatype.com/api/v1/publisher"
-                stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
-                setAuthorization("Basic")
-                retryDelay = 60
+    pom {
+        name.set(project.name)
+        description.set(project.provider(project::getDescription))
+        inceptionYear.set("2025")
+        url.set("https://github.com/sgzachesov/spring-data-jpa-specification-builder")
+        licenses {
+            license {
+                name.set("Apache License Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                distribution.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
+        developers {
+            developer {
+                id.set("sgzachesov")
+                name.set("Sergei Zachesov")
+                email.set("szachesov@yandex.ru")
+            }
+        }
+        scm {
+            connection.set("scm:git:https://github.com/sgzachesov/spring-data-jpa-specification-builder.git")
+            developerConnection.set("scm:git@github.com:sgzachesov/spring-data-jpa-specification-builder.git")
+            url.set("https://github.com/sgzachesov/spring-data-jpa-specification-builder")
+        }
     }
 }
 
+signing {
+    if (!version.toString().endsWith("SNAPSHOT")) {
+        useGpgCmd()
+        sign(publishing.publications)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -69,8 +63,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-    withJavadocJar()
-    withSourcesJar()
 }
 
 ext {
@@ -216,6 +208,6 @@ jacocoTestCoverageVerification {
 }
 
 
-tasks.withType(Javadoc) {
+tasks.withType(Javadoc).configureEach {
     options.addStringOption('Xdoclint:none', '-quiet')
 }
